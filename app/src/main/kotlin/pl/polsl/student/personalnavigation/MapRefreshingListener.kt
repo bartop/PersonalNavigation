@@ -7,7 +7,8 @@ import org.osmdroid.views.MapView
 
 class MapRefreshingListener(
         private val markersSource: MarkersSource,
-        private val asynchronousMarkersConsumer: AsynchronousMarkersConsumer) : MapListener {
+        private val asynchronousMarkersConsumer: AsynchronousMarkersConsumer
+) : MapListener {
 
     override fun onZoom(event: ZoomEvent): Boolean = setVisibleOverlays(event.source)
 

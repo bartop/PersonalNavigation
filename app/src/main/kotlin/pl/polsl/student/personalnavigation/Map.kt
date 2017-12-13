@@ -8,30 +8,33 @@ import java.util.logging.Logger
 /**
  * Created by Bartosz Miera on 2017-12-12.
  */
-class Map(private val map: MapView, private val uiThreadExecutor: (() ->  Unit) -> Unit) : AsynchronousMarkersConsumer {
+class Map(
+        private val map: MapView,
+        private val uiThreadExecutor: (Runnable) -> Unit
+) : AsynchronousMarkersConsumer {
     private var mapMarkers: Future<Iterable<MapMarker>>? = null
 
     override fun consume(markers: Future<Iterable<MapMarker>>) {
-        if (mapMarkers != null) mapMarkers!!.cancel(true)
+        mapMarkers?.cancel(true)
         mapMarkers = markers
-        Thread({
+        Thread{
             updateMap(markers)
-        }).start()
+        }.start()
     }
 
-    private fun updateMap(markers: Future<Iterable<MapMarker>>) {
-        synchronized(this, {
+    private fun updateMap(markersFuture: Future<Iterable<MapMarker>>) {
+        synchronized(this) {
             try {
-                val overlays = markers.get().map { mapMarker -> mapMarker.toOsmOverlay() }
-                uiThreadExecutor({
+                val markers = markersFuture.get()
+                uiThreadExecutor(Runnable{
                     map.overlays.clear()
-                    overlays.forEach { overlay -> map.overlays.add(overlay) }
+                    markers.forEach { marker -> map.overlays.add(marker.toOsmOverlay()) }
                     map.invalidate()
                 })
-            }catch(interruptedException: InterruptedException){
+            } catch(interruptedException: InterruptedException) {
                 Logger.getAnonymousLogger().log(Level.WARNING, interruptedException.message)
                 return
             }
-        })
+        }
     }
 }
