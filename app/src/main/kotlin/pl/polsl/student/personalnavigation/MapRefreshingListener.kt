@@ -1,6 +1,5 @@
 package pl.polsl.student.personalnavigation
 
-import android.os.Parcelable
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent

@@ -10,8 +10,10 @@ import java.util.concurrent.FutureTask
 class RandomMarkersSource(private val map: MapView) : MarkersSource {
     override fun toMarkersFuture(boundingBox: BoundingBox): Future<Iterable<MapMarker>> {
         val rng = Random()
-        return FutureTask(
-                { arrayListOf(BasicMapMarker(map, GeoPoint(rng.nextDouble(), rng.nextDouble()))) }
+        val task = FutureTask<Iterable<MapMarker>>(
+                { arrayListOf<MapMarker>(BasicMapMarker(map, GeoPoint(rng.nextDouble(), rng.nextDouble()))) }
         )
+        task.run()
+        return task
     }
 }
