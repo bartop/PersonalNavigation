@@ -3,11 +3,18 @@ package pl.polsl.student.personalnavigation
 import android.app.Activity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 
 
 class MainActivity : Activity() {
+    private val mapView: MapView by bindView(R.id.map)
+
+    //Depends on `mapView` - use only after layout inflation
+    private val markersConsumer: AsynchronousMarkersConsumer by lazy{ Map(mapView, this::runOnUiThread) }
+    private val markersSource: MarkersSource by lazy{ RandomMarkersSource(mapView) }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val ctx = applicationContext
@@ -15,16 +22,16 @@ class MainActivity : Activity() {
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         setContentView(R.layout.activity_main)
 
-        val mapView = findViewById<MapView>(R.id.map)
         mapView.setBuiltInZoomControls(true)
         mapView.setMultiTouchControls(true)
-        mapView.setMapListener(
-                MapRefreshingListener(
-                        RandomMarkersSource(mapView),
-                        Map(mapView, this::runOnUiThread)
-                )
-        )
+
+        //TODO: remove magic number
+        FixedRateScheduledTask(1000) {
+            //TODO: increase bounding box size to preload a bit bigger region
+            markersConsumer.consume(markersSource.toMarkersFuture(mapView.boundingBox))
+        }
     }
+
 
     public override fun onResume() {
         super.onResume()

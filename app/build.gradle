@@ -28,6 +28,7 @@ android {
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
@@ -35,6 +36,7 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     compile 'org.osmdroid:osmdroid-android:5.6.5'
     compile 'com.github.MKergall:osmbonuspack:6.4'
+    compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:26.1.0'
