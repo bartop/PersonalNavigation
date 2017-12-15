@@ -3,10 +3,10 @@ package pl.polsl.student.personalnavigation
 import android.app.Activity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import com.fasterxml.jackson.module.kotlin.*
 import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
-
 
 class MainActivity : Activity() {
     private val mapView: MapView by bindView(R.id.map)
