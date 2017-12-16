@@ -8,10 +8,10 @@ import org.osmdroid.util.BoundingBox
 class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
 
     override fun getMarker(id: Long): Marker {
-        return Fuel
-                .get(
+        return GetRequestFactory(
                         endpointUrl("/marker/$id")
                 )
+                .createRequest()
                 .responseString()
                 .third
                 .fold(
@@ -26,13 +26,13 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
     }
 
     override fun getMarkersIn(boundingBox: BoundingBox): Iterable<Marker> {
-        return Fuel
-                .get(
+        return GetRequestFactory(
                         endpointUrl("/markers"),
                         listOf(
                                 "boundingBox" to jacksonObjectMapper().writeValueAsString(BackendBoundingBox(boundingBox))
                         )
                 )
+                .createRequest()
                 .responseString()
                 .third
                 .fold(
