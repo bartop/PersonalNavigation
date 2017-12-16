@@ -2,7 +2,11 @@ package pl.polsl.student.personalnavigation
 
 import android.app.Activity
 import android.os.Bundle
+import android.os.Handler
 import android.preference.PreferenceManager
+import android.util.Log
+import android.widget.Toast
+import com.github.kittinunf.result.Result
 import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
@@ -16,6 +20,7 @@ class MainActivity : Activity() {
             markersSource,
             threadPoolExecutor
     )
+    private val handler = Handler()
 
 
     private val mapView: MapView by bindView(R.id.map)
@@ -37,19 +42,8 @@ class MainActivity : Activity() {
 
         mapView.setBuiltInZoomControls(true)
         mapView.setMultiTouchControls(true)
+        updateMap()
 
-        //TODO: read interval from configuration maybe?
-        FixedRateScheduledTask(1000) {
-            asyncMarkersSource
-                    .getMarkersIn(
-                            boundingBoxTransform(mapView.boundingBox)
-                    )
-                    .thenAccept {
-                        markers -> runOnUiThread {
-                            markersConsumer.consume(markers)
-                        }
-                    }
-        }
     }
 
 
@@ -60,5 +54,22 @@ class MainActivity : Activity() {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+    }
+
+    private fun updateMap() {
+        val delay = 250L
+        asyncMarkersSource
+                .getMarkersIn(
+                        boundingBoxTransform(mapView.boundingBox)
+                )
+                .exceptionally {
+                    Result.of { throw it }
+                }
+                .thenAccept {
+                    markers -> runOnUiThread {
+                        markersConsumer.consume(markers)
+                        handler.postDelayed(this::updateMap, delay)
+                    }
+                }
     }
 }
