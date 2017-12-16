@@ -6,14 +6,24 @@ import android.preference.PreferenceManager
 import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
+import java.util.concurrent.ScheduledThreadPoolExecutor
 
 class MainActivity : Activity() {
     private val boundingBoxTransform = ScalingBoundingBoxTransform(2.0f)
+    private val threadPoolExecutor = ScheduledThreadPoolExecutor(8)
+    private val markersSource: MarkersSource = RandomMarkersSource()
+    private val asyncMarkersSource = DefaultAsyncMarkersSource(
+            markersSource,
+            threadPoolExecutor
+    )
+
+
     private val mapView: MapView by bindView(R.id.map)
 
     //Depends on `mapView` - use only after layout inflation
-    private val markersConsumer: AsynchronousMarkersConsumer by lazy{ Map(mapView, this::runOnUiThread) }
-    private val markersSource: MarkersSource by lazy{ RandomMarkersSource(mapView) }
+    private val markersConsumer: AsynchronousMarkersConsumer by lazy{
+        Map(mapView, threadPoolExecutor, this::runOnUiThread)
+    }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,9 +38,9 @@ class MainActivity : Activity() {
         //TODO: remove magic number
         FixedRateScheduledTask(1000) {
             markersConsumer.consume(
-                    markersSource.getMarkersIn(
-                            boundingBoxTransform(mapView.boundingBox)
-                    )
+                asyncMarkersSource.getMarkersIn(
+                        boundingBoxTransform(mapView.boundingBox)
+                )
             )
         }
     }

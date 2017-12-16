@@ -1,8 +1,11 @@
 package pl.polsl.student.personalnavigation
 
+import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.map
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay
 import java.util.concurrent.Future
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -11,27 +14,30 @@ import java.util.logging.Logger
  */
 class Map(
         private val map: MapView,
+        private val threadPoolExecutor: ThreadPoolExecutor,
         private val uiThreadExecutor: (Runnable) -> Unit
 ) : AsynchronousMarkersConsumer {
-    private var markers: Future<Iterable<Marker>>? = null
+    private var markers: Future<Result<Iterable<Marker>, Exception>>? = null
 
-    override fun consume(markers: Future<Iterable<Marker>>) {
+    override fun consume(markers: Future<Result<Iterable<Marker>, Exception>>) {
         this.markers?.cancel(true)
         this.markers = markers
-        Thread{
+        threadPoolExecutor.execute{
             updateMap(markers)
-        }.start()
+        }
     }
 
-    private fun updateMap(markersFuture: Future<Iterable<Marker>>) {
+    private fun updateMap(markersFuture: Future<Result<Iterable<Marker>, Exception>>) {
         synchronized(this) {
             try {
-                val markers = markersFuture.get()
-                uiThreadExecutor(Runnable{
-                    map.overlays.clear()
-                    markers.forEach { marker -> map.overlays.add(createDisplayableMarker(map, marker)) }
-                    map.invalidate()
-                })
+                //TODO: error handling and probably refactoring
+                val markers = markersFuture.get().map {
+                    uiThreadExecutor(Runnable {
+                        map.overlays.clear()
+                        it.forEach { marker -> map.overlays.add(createDisplayableMarker(map, marker)) }
+                        map.invalidate()
+                    })
+                }
             } catch(interruptedException: InterruptedException) {
                 Logger.getAnonymousLogger().log(Level.WARNING, interruptedException.message)
                 return
