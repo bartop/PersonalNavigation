@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">PersonalNavigation</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="your_name">Your name</string>
+    <string name="preference_file_key">pl.polsl.student.personalnavigation.PREFERENCE_FILE_KEY</string>
+
 </resources>
