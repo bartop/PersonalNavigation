@@ -3,12 +3,12 @@ package pl.polsl.student.personalnavigation
 import android.app.Activity
 import android.os.Bundle
 import android.preference.PreferenceManager
-import com.fasterxml.jackson.module.kotlin.*
 import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 
 class MainActivity : Activity() {
+    private val boundingBoxTransform = ScalingBoundingBoxTransform(2.0f)
     private val mapView: MapView by bindView(R.id.map)
 
     //Depends on `mapView` - use only after layout inflation
@@ -27,8 +27,11 @@ class MainActivity : Activity() {
 
         //TODO: remove magic number
         FixedRateScheduledTask(1000) {
-            //TODO: increase bounding box size to preload a bit bigger region
-            markersConsumer.consume(markersSource.toMarkersFuture(mapView.boundingBox))
+            markersConsumer.consume(
+                    markersSource.getMarkersIn(
+                            boundingBoxTransform(mapView.boundingBox)
+                    )
+            )
         }
     }
 

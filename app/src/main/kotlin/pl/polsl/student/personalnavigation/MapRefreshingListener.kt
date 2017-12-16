@@ -15,7 +15,7 @@ class MapRefreshingListener(
     override fun onScroll(event: ScrollEvent): Boolean = setVisibleOverlays(event.source)
 
     private fun setVisibleOverlays(map: MapView) : Boolean {
-        asynchronousMarkersConsumer.consume(markersSource.toMarkersFuture(map.boundingBox))
+        asynchronousMarkersConsumer.consume(markersSource.getMarkersIn(map.boundingBox))
         return true
     }
 

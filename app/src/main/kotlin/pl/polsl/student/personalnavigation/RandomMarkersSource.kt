@@ -13,20 +13,42 @@ class RandomMarkersSource(
 ) : MarkersSource {
     private val rng = Random()
 
-    override fun toMarkersFuture(boundingBox: BoundingBox): Future<Iterable<MapMarker>> {
-        val task = FutureTask<Iterable<MapMarker>>(
+    override fun getMarkersIn(boundingBox: BoundingBox): Future<Iterable<Marker>> {
+        val task = FutureTask<Iterable<Marker>>(
                 {
                     (1..numberOfMarkers)
                             .map {
-                                GeoPoint(
-                                        rng.nextDouble() * boundingBox.latitudeSpan + boundingBox.latSouth,
-                                        rng.nextDouble() * boundingBox.longitudeSpan + boundingBox.lonWest
+                                DefaultMarker(
+                                        it.toLong(),
+                                        it.toString(),
+                                        Position(
+                                                latitude = rng.nextDouble() * boundingBox.latitudeSpan + boundingBox.latSouth,
+                                                longitude = rng.nextDouble() * boundingBox.longitudeSpan + boundingBox.lonWest,
+                                                altitude = rng.nextDouble() * 1000
+                                        )
+
                                 )
                             }
-                            .map {
-                                BasicMapMarker(map, it)
-                            }
                             .toList()
+                }
+        )
+        task.run()
+        return task
+    }
+
+    override fun getMarker(id: Long): Future<Marker> {
+        val task = FutureTask<Marker>(
+                {
+
+                    DefaultMarker(
+                                id,
+                                id.toString(),
+                                Position(
+                                        latitude = rng.nextDouble() * 180,
+                                        longitude = rng.nextDouble() * 180,
+                                        altitude = rng.nextDouble() * 1000
+                                )
+                        )
                 }
         )
         task.run()
