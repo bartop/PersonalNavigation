@@ -1,5 +1,6 @@
 package pl.polsl.student.personalnavigation
 
+import android.util.Log
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.map
 import org.osmdroid.views.MapView
@@ -31,13 +32,18 @@ class Map(
         synchronized(this) {
             try {
                 //TODO: error handling and probably refactoring
-                val markers = markersFuture.get().map {
-                    uiThreadExecutor(Runnable {
-                        map.overlays.clear()
-                        it.forEach { marker -> map.overlays.add(createDisplayableMarker(map, marker)) }
-                        map.invalidate()
-                    })
-                }
+                val markers = markersFuture.get().fold(
+                        {
+                            uiThreadExecutor(Runnable {
+                                map.overlays.clear()
+                                it.forEach { marker -> map.overlays.add(createDisplayableMarker(map, marker)) }
+                                map.invalidate()
+                            })
+                        },
+                        {
+                            Log.e("Map", "Cannot update map", it)
+                        }
+                )
             } catch(interruptedException: InterruptedException) {
                 Logger.getAnonymousLogger().log(Level.WARNING, interruptedException.message)
                 return

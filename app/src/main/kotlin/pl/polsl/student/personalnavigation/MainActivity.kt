@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 class MainActivity : Activity() {
     private val boundingBoxTransform = ScalingBoundingBoxTransform(2.0f)
     private val threadPoolExecutor = ScheduledThreadPoolExecutor(8)
-    private val markersSource: MarkersSource = RandomMarkersSource()
+    private val markersSource: MarkersSource = BackendMarkersSource("http://10.0.2.2:8080/")
     private val asyncMarkersSource = DefaultAsyncMarkersSource(
             markersSource,
             threadPoolExecutor
