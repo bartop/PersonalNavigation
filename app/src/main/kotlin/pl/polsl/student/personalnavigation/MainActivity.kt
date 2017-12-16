@@ -21,8 +21,11 @@ class MainActivity : Activity() {
     private val mapView: MapView by bindView(R.id.map)
 
     //Depends on `mapView` - use only after layout inflation
-    private val markersConsumer: AsynchronousMarkersConsumer by lazy{
-        Map(mapView, threadPoolExecutor, this::runOnUiThread)
+    private val markersConsumer: MarkersConsumer by lazy{
+        Map(
+                mapView,
+                DefaultOverlayMarkersFactory(mapView)
+        )
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,13 +38,17 @@ class MainActivity : Activity() {
         mapView.setBuiltInZoomControls(true)
         mapView.setMultiTouchControls(true)
 
-        //TODO: remove magic number
+        //TODO: read interval from configuration maybe?
         FixedRateScheduledTask(1000) {
-            markersConsumer.consume(
-                asyncMarkersSource.getMarkersIn(
-                        boundingBoxTransform(mapView.boundingBox)
-                )
-            )
+            asyncMarkersSource
+                    .getMarkersIn(
+                            boundingBoxTransform(mapView.boundingBox)
+                    )
+                    .thenAccept {
+                        markers -> runOnUiThread {
+                            markersConsumer.consume(markers)
+                        }
+                    }
         }
     }
 
