@@ -5,7 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.EditText
-import android.widget.TextView
+import android.R.string.ok
 
 
 class NameInputDialog(
@@ -26,7 +26,8 @@ class NameInputDialog(
 
         alertDialogBuilder
                 .setCancelable(false)
-                .setPositiveButton("OK",
+                .setPositiveButton(
+                        android.R.string.ok,
                         { _, _ ->
                             onNameEntered(userInput.text.toString())
                         }

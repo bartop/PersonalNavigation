@@ -1,28 +1,26 @@
 package pl.polsl.student.personalnavigation
 
 import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.widget.TextView
 import com.github.kittinunf.result.Result
+import com.yayandroid.locationmanager.base.LocationBaseActivity
+import com.yayandroid.locationmanager.configuration.Configurations
+import com.yayandroid.locationmanager.configuration.LocationConfiguration
 import kotterknife.bindView
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 import java.util.concurrent.ScheduledThreadPoolExecutor
-import android.R.string.cancel
-import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.content.SharedPreferences
-import android.view.View
-import android.widget.EditText
-import android.widget.TextView
-import java8.util.Optional
 
 
-class MainActivity : Activity() {
+class MainActivity : LocationBaseActivity() {
     private val NAME_KEY = "name"
     private val boundingBoxTransform = ScalingBoundingBoxTransform(2.0f)
     private val threadPoolExecutor = ScheduledThreadPoolExecutor(8)
@@ -74,6 +72,8 @@ class MainActivity : Activity() {
 
         login()
 
+        locationManager.get()
+
     }
 
 
@@ -90,17 +90,18 @@ class MainActivity : Activity() {
         loginService
                 .login()
                 .exceptionally {
-                    //TODO: cast...
-                    Optional.of(it as Exception)
+                    Result.of { throw it }
                 }
                 .thenAccept {
-                    it.ifPresentOrElse(
+                    it.fold(
+                            {
+                                updateMap()
+                            },
                             {
                                 //try to relogin
                                 handler.postDelayed(this::login, 1000L)
                                 Log.e("Main activity", "Cannot login!", it)
-                            },
-                            this::updateMap
+                            }
                     )
                 }
     }
@@ -142,4 +143,21 @@ class MainActivity : Activity() {
         )
     }
 
+    override fun onLocationFailed(type: Int) {
+        //TODO: idk, show toast, ignore?
+        Log.e("MainActivity", "On location failed: $type")
+    }
+
+    override fun getLocationConfiguration(): LocationConfiguration {
+        //TODO: move message to resources and make it meaningful
+        return Configurations.defaultConfiguration(
+                "Rational message?",
+                "Gps message?"
+        )
+    }
+
+    override fun onLocationChanged(location: Location?) {
+        //TODO: post to server
+        Log.i("MainActivity", location?.toString())
+    }
 }
