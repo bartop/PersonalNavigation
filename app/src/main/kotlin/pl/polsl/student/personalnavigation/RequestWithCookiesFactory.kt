@@ -6,7 +6,10 @@ import kotlin.collections.Map
 class RequestWithCookiesFactory(val requestFactory: RequestFactory, val cookies: Map<String, String> ) : RequestFactory {
     override fun createRequest(): Request {
         val request = requestFactory.createRequest()
-        request.headers.putAll(cookies)
+        val cookiesString = cookies.map{ (key, value) ->
+            "$key=$value"
+        }.joinToString(separator = ";")
+        request.headers.put("cookie", cookiesString)
         return request
     }
 }
