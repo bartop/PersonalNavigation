@@ -15,5 +15,5 @@ inline fun <reified T> Request.responseJsonOrThrow(): T {
 
 inline fun <reified T> Request.jsonBody(toJson: T): Request {
     return this.body(jacksonObjectMapper().writeValueAsString(toJson))
-            .header("Content-Type" to "application/json")
+            .header("Content-Type" to "application/json; charset=utf-8")
 }

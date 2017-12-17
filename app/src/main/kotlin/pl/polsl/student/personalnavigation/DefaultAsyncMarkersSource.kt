@@ -10,11 +10,11 @@ class DefaultAsyncMarkersSource(
         private val markersSource: MarkersSource,
         private val executor: Executor
 ): AsyncMarkersSource {
-    override fun getMarkersIn(boundingBox: BoundingBox): CompletableFuture<Result<Iterable<Marker>, Exception>> {
+    override fun getMarkersIn(boundingBox: BoundingBox): CompletableFuture<Result<Iterable<IdentifiableMarker>, Exception>> {
         return execute { markersSource.getMarkersIn(boundingBox) }
     }
 
-    override fun getMarker(id: Long): CompletableFuture<Result<Marker, Exception>> {
+    override fun getMarker(id: Long): CompletableFuture<Result<IdentifiableMarker, Exception>> {
         return execute { markersSource.getMarker(id) }
     }
 

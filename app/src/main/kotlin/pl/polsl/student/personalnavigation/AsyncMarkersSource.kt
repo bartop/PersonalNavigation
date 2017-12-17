@@ -6,6 +6,6 @@ import java8.util.concurrent.CompletableFuture
 
 
 interface AsyncMarkersSource {
-    fun getMarkersIn(boundingBox: BoundingBox): CompletableFuture<Result<Iterable<Marker>, Exception>>
-    fun getMarker(id: Long): CompletableFuture<Result<Marker, Exception>>
+    fun getMarkersIn(boundingBox: BoundingBox): CompletableFuture<Result<Iterable<IdentifiableMarker>, Exception>>
+    fun getMarker(id: Long): CompletableFuture<Result<IdentifiableMarker, Exception>>
 }

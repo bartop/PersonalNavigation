@@ -1,21 +1,19 @@
 package pl.polsl.student.personalnavigation
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
 import org.osmdroid.util.BoundingBox
 
 class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
 
-    override fun getMarker(id: Long): Marker {
+    override fun getMarker(id: Long): IdentifiableMarker {
         return GetRequestFactory(
                         endpointUrl("/marker/$id")
                 )
                 .createRequest()
-                .responseJsonOrThrow<DefaultMarker>()
+                .responseJsonOrThrow<DefaultIdentifiableMarker>()
     }
 
-    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<Marker> {
+    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<IdentifiableMarker> {
         return GetRequestFactory(
                         endpointUrl("/markers"),
                         listOf(
@@ -23,7 +21,7 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
                         )
                 )
                 .createRequest()
-                .responseJsonOrThrow<Array<DefaultMarker>>()
+                .responseJsonOrThrow<Array<DefaultIdentifiableMarker>>()
                 .toList()
     }
 

@@ -1,20 +1,17 @@
 package pl.polsl.student.personalnavigation
 
 import org.osmdroid.util.BoundingBox
-import org.osmdroid.views.MapView
 import java.util.*
-import java.util.concurrent.Future
-import java.util.concurrent.FutureTask
 
 class RandomMarkersSource(
         private val numberOfMarkers: Int = 32
 ) : MarkersSource {
     private val rng = Random()
 
-    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<Marker> {
+    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<IdentifiableMarker> {
         return (1..numberOfMarkers)
                     .map {
-                        DefaultMarker(
+                        DefaultIdentifiableMarker(
                                 it.toLong(),
                                 it.toString(),
                                 Position(
@@ -29,8 +26,8 @@ class RandomMarkersSource(
 
     }
 
-    override fun getMarker(id: Long): Marker {
-        return DefaultMarker(
+    override fun getMarker(id: Long): IdentifiableMarker {
+        return DefaultIdentifiableMarker(
                     id,
                     id.toString(),
                     Position(

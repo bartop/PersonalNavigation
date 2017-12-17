@@ -5,6 +5,7 @@ import android.util.Log
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelManager
 
 
 class BackendLoginService(
@@ -41,6 +42,10 @@ class BackendLoginService(
                     "$url/authenticate"
             )
         }
+
+        FuelManager.instance.baseHeaders = mapOf(
+                "Cookie" to (response.headers["Set-Cookie"]?.joinToString(separator = "; ") ?: "")
+        )
 
         return authenticationData
     }
