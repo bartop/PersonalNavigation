@@ -15,9 +15,11 @@ import android.R.string.cancel
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import java8.util.Optional
 
 
 class MainActivity : Activity() {
@@ -30,6 +32,12 @@ class MainActivity : Activity() {
             threadPoolExecutor
     )
     private val handler = Handler()
+    private val loginService by lazy {
+        AsyncLoginService(
+            BackendLoginService("http://10.0.2.2:8080", sharedPreferences()),
+            threadPoolExecutor
+        )
+    }
 
     private val mapView: MapView by bindView(R.id.map)
     private val nameView: TextView by bindView(R.id.nameTextView)
@@ -56,10 +64,7 @@ class MainActivity : Activity() {
         mapView.setBuiltInZoomControls(true)
         mapView.setMultiTouchControls(true)
 
-        val preferences = getSharedPreferences(
-                getString(R.string.preference_file_key),
-                Context.MODE_PRIVATE
-        )
+        val preferences = sharedPreferences()
 
         if (!preferences.contains(NAME_KEY)) {
             showNameDialog(null)
@@ -67,7 +72,7 @@ class MainActivity : Activity() {
             nameView.text = preferences.getString(NAME_KEY, getString(R.string.your_name))
         }
 
-        updateMap()
+        login()
 
     }
 
@@ -79,6 +84,25 @@ class MainActivity : Activity() {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+    }
+
+    private fun login() {
+        loginService
+                .login()
+                .exceptionally {
+                    //TODO: cast...
+                    Optional.of(it as Exception)
+                }
+                .thenAccept {
+                    it.ifPresentOrElse(
+                            {
+                                //try to relogin
+                                handler.postDelayed(this::login, 1000L)
+                                Log.e("Main activity", "Cannot login!", it)
+                            },
+                            this::updateMap
+                    )
+                }
     }
 
     private fun updateMap() {
@@ -98,7 +122,7 @@ class MainActivity : Activity() {
                 }
     }
 
-    private fun showNameDialog(view: View?) {
+    fun showNameDialog(view: View?) {
         nameInputDialog.show()
     }
 
@@ -106,12 +130,16 @@ class MainActivity : Activity() {
         val textView = findViewById<TextView>(R.id.nameTextView)
         textView.text = name
 
-        val preferences = getSharedPreferences(
+        val preferences = sharedPreferences()
+
+        preferences.edit().putString(NAME_KEY, name).apply()
+    }
+
+    private fun sharedPreferences(): SharedPreferences {
+        return getSharedPreferences(
                 getString(R.string.preference_file_key),
                 Context.MODE_PRIVATE
         )
-
-        preferences.edit().putString(NAME_KEY, name).apply()
     }
 
 }

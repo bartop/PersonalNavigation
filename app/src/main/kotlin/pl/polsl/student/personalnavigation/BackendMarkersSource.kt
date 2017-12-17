@@ -12,17 +12,7 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
                         endpointUrl("/marker/$id")
                 )
                 .createRequest()
-                .responseString()
-                .third
-                .fold(
-                        {
-                            jacksonObjectMapper()
-                                    .readValue<DefaultMarker>(it)
-                        },
-                        {
-                            throw it
-                        }
-                )
+                .responseJsonOrThrow<DefaultMarker>()
     }
 
     override fun getMarkersIn(boundingBox: BoundingBox): Iterable<Marker> {
@@ -33,18 +23,8 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
                         )
                 )
                 .createRequest()
-                .responseString()
-                .third
-                .fold(
-                        {
-                            jacksonObjectMapper()
-                                    .readValue<Array<DefaultMarker>>(it)
-                                    .toList()
-                        },
-                        {
-                            throw it
-                        }
-                )
+                .responseJsonOrThrow<Array<DefaultMarker>>()
+                .toList()
     }
 
     private fun endpointUrl(uri: String): String {
