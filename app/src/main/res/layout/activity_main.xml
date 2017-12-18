@@ -8,12 +8,38 @@
         android:id="@+id/nameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="showNameDialog"
         android:text="@string/your_name"
         android:textAlignment="center"
-        android:textSize="18sp"
-        android:onClick="showNameDialog"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
 
-    <org.osmdroid.views.MapView android:id="@+id/map"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ToggleButton
+            android:id="@+id/trackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"
+            android:drawableTop="@android:drawable/ic_menu_mylocation"
+            android:gravity="center"
+            android:text=""
+            android:textOff=""
+            android:textOn=""
+            android:textSize="0dp"/>
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+        </org.osmdroid.views.MapView>
+
+
+    </RelativeLayout>
+
 </LinearLayout>
