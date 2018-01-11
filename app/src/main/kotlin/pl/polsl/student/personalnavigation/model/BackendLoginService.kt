@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import android.content.SharedPreferences
 import android.util.Log
@@ -6,6 +6,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
+import pl.polsl.student.personalnavigation.util.InvalidStatusCodeException
+import pl.polsl.student.personalnavigation.util.jsonBody
+import pl.polsl.student.personalnavigation.util.responseJsonOrThrow
 
 
 class BackendLoginService(

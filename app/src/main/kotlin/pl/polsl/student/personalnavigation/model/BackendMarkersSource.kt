@@ -1,8 +1,9 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import org.osmdroid.util.BoundingBox
+import pl.polsl.student.personalnavigation.util.responseJsonOrThrow
 
 class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
 

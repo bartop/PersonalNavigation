@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.util
 
 import org.osmdroid.util.BoundingBox
 

@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.util
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.core.Request

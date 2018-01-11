@@ -1,8 +1,9 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import android.location.Location
 import android.util.Log
 import com.github.kittinunf.fuel.Fuel
+import pl.polsl.student.personalnavigation.util.jsonBody
 
 
 class LocationSender(

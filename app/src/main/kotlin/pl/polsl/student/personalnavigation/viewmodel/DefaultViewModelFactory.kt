@@ -1,7 +1,9 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.viewmodel
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
+import pl.polsl.student.personalnavigation.model.BackendMarkersSource
 import java.util.concurrent.ScheduledExecutorService
 
 

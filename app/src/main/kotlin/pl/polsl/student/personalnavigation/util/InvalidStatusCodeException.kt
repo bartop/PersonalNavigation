@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.util
 
 class InvalidStatusCodeException(
         status: Int,

@@ -1,8 +1,7 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.view
 
-import android.util.Log
-import com.github.kittinunf.result.Result
 import org.osmdroid.views.MapView
+import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
 /**
  * Created by Bartosz Miera on 2017-12-12.

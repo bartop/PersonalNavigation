@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import android.location.Location
 import org.osmdroid.util.GeoPoint

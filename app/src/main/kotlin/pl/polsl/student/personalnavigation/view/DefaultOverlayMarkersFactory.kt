@@ -1,6 +1,7 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.view
 
 import org.osmdroid.views.MapView
+import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
 
 class DefaultOverlayMarkersFactory(

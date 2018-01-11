@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import com.github.kittinunf.result.Result
 import java8.util.concurrent.CompletableFuture

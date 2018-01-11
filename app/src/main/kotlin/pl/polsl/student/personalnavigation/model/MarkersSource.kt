@@ -1,6 +1,7 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import org.osmdroid.util.BoundingBox
+import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
 interface MarkersSource {
     fun getMarkersIn(boundingBox: BoundingBox): Set<IdentifiableMarker>

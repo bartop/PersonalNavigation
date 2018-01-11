@@ -1,11 +1,11 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.view
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.EditText
-import android.R.string.ok
+import pl.polsl.student.personalnavigation.R
 
 
 class NameInputDialog(

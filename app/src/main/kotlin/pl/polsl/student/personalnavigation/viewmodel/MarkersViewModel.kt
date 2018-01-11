@@ -1,12 +1,13 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.viewmodel
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import java8.util.Optional
 import org.osmdroid.util.BoundingBox
+import pl.polsl.student.personalnavigation.model.MarkersSource
+import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 

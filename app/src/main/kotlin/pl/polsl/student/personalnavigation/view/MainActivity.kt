@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.view
 
 import android.arch.lifecycle.Observer
 import android.content.Context
@@ -22,9 +22,13 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import android.arch.lifecycle.ViewModelProviders
-import org.osmdroid.events.MapListener
-import org.osmdroid.events.ScrollEvent
-import org.osmdroid.events.ZoomEvent
+import pl.polsl.student.personalnavigation.R
+import pl.polsl.student.personalnavigation.model.AsyncLoginService
+import pl.polsl.student.personalnavigation.model.BackendLoginService
+import pl.polsl.student.personalnavigation.model.LocationSender
+import pl.polsl.student.personalnavigation.util.SimpleMapListener
+import pl.polsl.student.personalnavigation.viewmodel.DefaultViewModelFactory
+import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 
 
 class MainActivity : LocationBaseActivity() {
@@ -36,8 +40,8 @@ class MainActivity : LocationBaseActivity() {
     private val handler = Handler()
     private val loginService by lazy {
         AsyncLoginService(
-            BackendLoginService(serverUrl, sharedPreferences()),
-            threadPoolExecutor
+                BackendLoginService(serverUrl, sharedPreferences()),
+                threadPoolExecutor
         )
     }
     private val locationSender: LocationSender by lazy {

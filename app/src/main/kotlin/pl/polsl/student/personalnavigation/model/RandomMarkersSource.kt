@@ -1,4 +1,4 @@
-package pl.polsl.student.personalnavigation
+package pl.polsl.student.personalnavigation.model
 
 import org.osmdroid.util.BoundingBox
 import java.util.*
@@ -28,13 +28,13 @@ class RandomMarkersSource(
 
     override fun getMarker(id: Long): IdentifiableMarker {
         return DefaultIdentifiableMarker(
-                    id,
-                    id.toString(),
-                    Position(
-                            latitude = rng.nextDouble() * 180,
-                            longitude = rng.nextDouble() * 180,
-                            altitude = rng.nextDouble() * 1000
-                    )
-            )
+                id,
+                id.toString(),
+                Position(
+                        latitude = rng.nextDouble() * 180,
+                        longitude = rng.nextDouble() * 180,
+                        altitude = rng.nextDouble() * 1000
+                )
+        )
     }
 }
