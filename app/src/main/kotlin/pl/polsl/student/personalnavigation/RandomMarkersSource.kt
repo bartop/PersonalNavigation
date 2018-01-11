@@ -8,7 +8,7 @@ class RandomMarkersSource(
 ) : MarkersSource {
     private val rng = Random()
 
-    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<IdentifiableMarker> {
+    override fun getMarkersIn(boundingBox: BoundingBox): Set<IdentifiableMarker> {
         return (1..numberOfMarkers)
                     .map {
                         DefaultIdentifiableMarker(
@@ -22,7 +22,7 @@ class RandomMarkersSource(
 
                         )
                     }
-                    .toList()
+                    .toSet()
 
     }
 

@@ -1,5 +1,6 @@
 package pl.polsl.student.personalnavigation
 
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
@@ -20,18 +21,18 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import java.util.concurrent.ScheduledThreadPoolExecutor
+import android.arch.lifecycle.ViewModelProviders
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 
 
 class MainActivity : LocationBaseActivity() {
     private val TAG = "MainActivity"
     private val NAME_KEY = "name"
     private val serverUrl = "http://10.0.2.2:8080"
-    private val boundingBoxTransform = ScalingBoundingBoxTransform(2.0f)
     private val threadPoolExecutor = ScheduledThreadPoolExecutor(8)
-    private val asyncMarkersSource = DefaultAsyncMarkersSource(
-            BackendMarkersSource(serverUrl),
-            threadPoolExecutor
-    )
+
     private val handler = Handler()
     private val loginService by lazy {
         AsyncLoginService(
@@ -81,6 +82,32 @@ class MainActivity : LocationBaseActivity() {
             nameView.text = sharedPreferences().getString(NAME_KEY, getString(R.string.your_name))
         }
 
+        val markersViewModel = ViewModelProviders
+                .of(this, DefaultViewModelFactory(threadPoolExecutor))
+                .get(MarkersViewModel::class.java)
+
+        markersViewModel.markers.observe(
+                this,
+                Observer {
+                    markersConsumer.consume(
+                            it!!
+                    )
+                }
+        )
+
+        markersViewModel.error.observe(
+                this,
+                Observer {
+                    Log.e(TAG, it?.message)
+                }
+        )
+
+        mapView.setMapListener(
+                SimpleMapListener {
+                    markersViewModel.setBoundingBox(mapView.boundingBox)
+                }
+        )
+
         getLocation()
         refreshLocation()
         login()
@@ -106,7 +133,7 @@ class MainActivity : LocationBaseActivity() {
                     runOnUiThread {
                         it.fold(
                                 {
-                                    updateMap()
+                                    //updateMap()
                                 },
                                 {
                                     //try to relogin
@@ -114,23 +141,6 @@ class MainActivity : LocationBaseActivity() {
                                     Log.e(TAG, "Cannot login!", it)
                                 }
                         )
-                    }
-                }
-    }
-
-    private fun updateMap() {
-        val delay = 250L
-        asyncMarkersSource
-                .getMarkersIn(
-                        boundingBoxTransform(mapView.boundingBox)
-                )
-                .exceptionally {
-                    Result.of { throw it }
-                }
-                .thenAccept {
-                    markers -> runOnUiThread {
-                        markersConsumer.consume(markers)
-                        handler.postDelayed(this::updateMap, delay)
                     }
                 }
     }

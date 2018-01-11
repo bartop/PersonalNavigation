@@ -47,6 +47,9 @@ dependencies {
     compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.6.0'
     compile 'com.yayandroid:LocationManager:2.0.4'
 
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:1.0.0"
+    annotationProcessor "android.arch.lifecycle:compiler:1.0.0"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"

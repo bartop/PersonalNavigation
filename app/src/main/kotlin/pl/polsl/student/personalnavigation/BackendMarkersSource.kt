@@ -13,7 +13,7 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
                 .responseJsonOrThrow<DefaultIdentifiableMarker>()
     }
 
-    override fun getMarkersIn(boundingBox: BoundingBox): Iterable<IdentifiableMarker> {
+    override fun getMarkersIn(boundingBox: BoundingBox): Set<IdentifiableMarker> {
         return Fuel.get(
                         endpointUrl("/markers"),
                         listOf(
@@ -21,7 +21,7 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
                         )
                 )
                 .responseJsonOrThrow<Array<DefaultIdentifiableMarker>>()
-                .toList()
+                .toSet()
     }
 
     private fun endpointUrl(uri: String): String {

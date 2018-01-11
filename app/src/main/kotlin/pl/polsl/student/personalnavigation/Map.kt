@@ -12,16 +12,9 @@ class Map(
         private val overlayMarkersFactory: OverlayMarkersFactory
 ) : MarkersConsumer {
 
-    override fun consume(markers: Result<Iterable<IdentifiableMarker>, Exception>) {
-        markers.fold(
-                {
-                    map.overlays.clear()
-                    it.forEach { marker -> map.overlays.add(overlayMarkersFactory.create(marker)) }
-                    map.invalidate()
-                },
-                {
-                    Log.e("Map", "Cannot update map", it)
-                }
-        )
+    override fun consume(markers: Iterable<IdentifiableMarker>) {
+            map.overlays.clear()
+            markers.forEach { marker -> map.overlays.add(overlayMarkersFactory.create(marker)) }
+            map.invalidate()
     }
 }
