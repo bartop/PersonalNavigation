@@ -33,17 +33,21 @@ class BackendLoginService(
 
         Log.i("BackendLoginService", request.toString())
 
-        if (response.statusCode !in 200..299) {
-            preferences
-                    .edit()
-                    .remove(AUTHENTICATION_DATA_KEY)
-                    .apply()
+        with(response.statusCode) {
+            if (this !in 200..299) {
+                if (this in 400..499) {
+                    preferences
+                            .edit()
+                            .remove(AUTHENTICATION_DATA_KEY)
+                            .apply()
+                }
 
-            throw InvalidStatusCodeException(
-                    response.statusCode,
-                    200..299,
-                    "$url/authenticate"
-            )
+                throw InvalidStatusCodeException(
+                        response.statusCode,
+                        200..299,
+                        "$url/authenticate"
+                )
+            }
         }
 
         FuelManager.instance.baseHeaders = mapOf(

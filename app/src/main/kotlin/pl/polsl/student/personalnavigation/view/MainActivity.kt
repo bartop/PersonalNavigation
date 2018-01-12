@@ -22,28 +22,28 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import android.arch.lifecycle.ViewModelProviders
+import org.koin.android.architecture.ext.getViewModel
+import org.koin.android.ext.android.inject
 import pl.polsl.student.personalnavigation.R
-import pl.polsl.student.personalnavigation.model.AsyncLoginService
+import pl.polsl.student.personalnavigation.viewmodel.AsyncLoginService
 import pl.polsl.student.personalnavigation.model.BackendLoginService
 import pl.polsl.student.personalnavigation.model.LocationSender
 import pl.polsl.student.personalnavigation.util.SimpleMapListener
+import pl.polsl.student.personalnavigation.util.observeNotNull
 import pl.polsl.student.personalnavigation.viewmodel.DefaultViewModelFactory
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
+import java.util.concurrent.ScheduledExecutorService
 
 
 class MainActivity : LocationBaseActivity() {
     private val TAG = "MainActivity"
     private val NAME_KEY = "name"
-    private val serverUrl = "http://10.0.2.2:8080"
-    private val threadPoolExecutor = ScheduledThreadPoolExecutor(8)
-
+    private val serverUrl by inject<String>("serverUrl")
     private val handler = Handler()
-    private val loginService by lazy {
-        AsyncLoginService(
-                BackendLoginService(serverUrl, sharedPreferences()),
-                threadPoolExecutor
-        )
-    }
+
+    private val loginService by lazy { getViewModel<AsyncLoginService>() }
+    private val markersViewModel by lazy { getViewModel<MarkersViewModel>() }
+
     private val locationSender: LocationSender by lazy {
         LocationSender(
                 serverUrl,
@@ -56,6 +56,7 @@ class MainActivity : LocationBaseActivity() {
     private val mapView: MapView by bindView(R.id.map)
     private val nameView: TextView by bindView(R.id.nameTextView)
     private val trackButton: ToggleButton by bindView(R.id.trackButton)
+    private val sharedPreferences: SharedPreferences by inject()
     private var currentLocation: Location? = null
 
     //Depends on `mapView` - use only after layout inflation
@@ -80,29 +81,25 @@ class MainActivity : LocationBaseActivity() {
         mapView.setMultiTouchControls(true)
         mapView.controller.setZoom(9)
 
-        if (!sharedPreferences().contains(NAME_KEY)) {
+        if (!sharedPreferences.contains(NAME_KEY)) {
             showNameDialog(null)
         } else {
-            nameView.text = sharedPreferences().getString(NAME_KEY, getString(R.string.your_name))
+            nameView.text = sharedPreferences.getString(NAME_KEY, getString(R.string.your_name))
         }
 
-        val markersViewModel = ViewModelProviders
-                .of(this, DefaultViewModelFactory(threadPoolExecutor))
-                .get(MarkersViewModel::class.java)
-
-        markersViewModel.markers.observe(
+        markersViewModel.markers.observeNotNull(
                 this,
-                Observer {
+                 {
                     markersConsumer.consume(
-                            it!!
+                            it
                     )
                 }
         )
 
-        markersViewModel.error.observe(
+        markersViewModel.error.observeNotNull(
                 this,
-                Observer {
-                    Log.e(TAG, it?.message)
+                {
+                    Log.e(TAG, "Cannot download markers!", it)
                 }
         )
 
@@ -114,7 +111,18 @@ class MainActivity : LocationBaseActivity() {
 
         getLocation()
         refreshLocation()
-        login()
+
+        loginService.login()
+        loginService.authenticationData.observeNotNull(
+                this,
+                {}
+        )
+        loginService.error.observeNotNull(
+                this,
+                {
+                    Log.e(TAG, "Cannot login!", it)
+                }
+        )
     }
 
 
@@ -125,28 +133,6 @@ class MainActivity : LocationBaseActivity() {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-    }
-
-    private fun login() {
-        loginService
-                .login()
-                .exceptionally {
-                    Result.of { throw it }
-                }
-                .thenAccept {
-                    runOnUiThread {
-                        it.fold(
-                                {
-                                    //updateMap()
-                                },
-                                {
-                                    //try to relogin
-                                    handler.postDelayed(this::login, 1000L)
-                                    Log.e(TAG, "Cannot login!", it)
-                                }
-                        )
-                    }
-                }
     }
 
     private fun refreshLocation() {
@@ -167,14 +153,7 @@ class MainActivity : LocationBaseActivity() {
 
     private fun onNameEntered(name: String) {
         nameView.text = name
-        sharedPreferences().edit().putString(NAME_KEY, name).apply()
-    }
-
-    private fun sharedPreferences(): SharedPreferences {
-        return getSharedPreferences(
-                getString(R.string.preference_file_key),
-                Context.MODE_PRIVATE
-        )
+        sharedPreferences.edit().putString(NAME_KEY, name).apply()
     }
 
     override fun onLocationFailed(type: Int) {
@@ -206,6 +185,5 @@ class MainActivity : LocationBaseActivity() {
         }
         handler.postDelayed(this::getLocation, 100)
     }
-
 
 }

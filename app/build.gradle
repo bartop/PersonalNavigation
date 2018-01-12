@@ -39,13 +39,17 @@ dependencies {
     compile 'org.osmdroid:osmdroid-android:5.6.5'
     compile 'com.github.MKergall:osmbonuspack:6.4'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.7.3'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.2'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2'
     compile 'com.github.kittinunf.fuel:fuel-android:1.12.0'
     compile 'net.sourceforge.streamsupport:streamsupport-cfuture:1.6.0'
     compile 'com.yayandroid:LocationManager:2.0.4'
+
+    compile "org.koin:koin-core:0.8.0"
+    compile "org.koin:koin-android:0.8.0"
+    compile "org.koin:koin-android-architecture:0.8.0"
 
     // ViewModel and LiveData
     implementation "android.arch.lifecycle:extensions:1.0.0"
