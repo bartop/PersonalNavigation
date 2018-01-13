@@ -4,13 +4,13 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import pl.polsl.student.personalnavigation.model.AuthenticationData
-import pl.polsl.student.personalnavigation.model.LoginService
+import pl.polsl.student.personalnavigation.model.AuthenticationService
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
 class AsyncLoginService(
-        private val loginService: LoginService,
+        private val authenticationService: AuthenticationService,
         private val executor: ScheduledExecutorService
 ): ViewModel() {
     private val mutableAuthenticationData: MutableLiveData<AuthenticationData> = MutableLiveData()
@@ -19,7 +19,7 @@ class AsyncLoginService(
 
     fun login() {
         try {
-            mutableAuthenticationData.postValue(loginService.login())
+           // mutableAuthenticationData.postValue(authenticationService.login())
         } catch (e: Exception) {
             mutableError.postValue(e)
             executor.schedule(this::login, 500, TimeUnit.MILLISECONDS)

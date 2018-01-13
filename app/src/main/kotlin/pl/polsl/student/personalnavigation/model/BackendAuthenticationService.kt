@@ -6,18 +6,56 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
+import java8.util.Optional
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import pl.polsl.student.personalnavigation.util.InvalidStatusCodeException
 import pl.polsl.student.personalnavigation.util.jsonBody
 import pl.polsl.student.personalnavigation.util.responseJsonOrThrow
 
 
-class BackendLoginService(
+class BackendAuthenticationService(
         private val url: String,
         private val preferences: SharedPreferences
-): LoginService {
+): AuthenticationService, AnkoLogger {
     private val AUTHENTICATION_DATA_KEY = "authentication_data"
 
-    override fun login(): AuthenticationData {
+    private var authenticationDataCache: Optional<AuthenticationData> = Optional.empty()
+    private var authenticationHeadersCache: Optional<Map<String, String>> = Optional.empty()
+
+
+    override fun authenticationHeaders(): Map<String, String> {
+        synchronized(this) {
+            if (!authenticationHeadersCache.isPresent) {
+                val (authenticationData, headers) = login()
+                authenticationDataCache = Optional.of(authenticationData)
+                authenticationHeadersCache = Optional.of(headers)
+            }
+
+            return authenticationHeadersCache.get()
+        }
+    }
+
+    override fun authentication(): AuthenticationData {
+        synchronized(this) {
+            if (!authenticationDataCache.isPresent) {
+                val (authenticationData, headers) = login()
+                authenticationDataCache = Optional.of(authenticationData)
+                authenticationHeadersCache = Optional.of(headers)
+            }
+
+            return authenticationDataCache.get()
+        }
+    }
+
+    override fun invalidateAuthentication() {
+        synchronized(this) {
+            authenticationDataCache = Optional.empty()
+            authenticationHeadersCache = Optional.empty()
+        }
+    }
+
+    private fun login(): Pair<AuthenticationData, Map<String, String>> {
         val authenticationData = if (preferences.contains(AUTHENTICATION_DATA_KEY)) {
             jacksonObjectMapper().readValue<AuthenticationData>(
                     preferences.getString(AUTHENTICATION_DATA_KEY, "")
@@ -30,8 +68,6 @@ class BackendLoginService(
                 .post("$url/authenticate")
                 .jsonBody(authenticationData)
                 .responseString()
-
-        Log.i("BackendLoginService", request.toString())
 
         with(response.statusCode) {
             if (this !in 200..299) {
@@ -50,11 +86,11 @@ class BackendLoginService(
             }
         }
 
-        FuelManager.instance.baseHeaders = mapOf(
+        val headers = mapOf(
                 "Cookie" to (response.headers["Set-Cookie"]?.joinToString(separator = "; ") ?: "")
         )
 
-        return authenticationData
+        return authenticationData to headers
     }
 
     private fun register(): AuthenticationData {

@@ -1,63 +1,60 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.arch.lifecycle.Observer
-import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.ToggleButton
-import com.github.kittinunf.result.Result
-import com.yayandroid.locationmanager.base.LocationBaseActivity
-import com.yayandroid.locationmanager.configuration.DefaultProviderConfiguration
-import com.yayandroid.locationmanager.configuration.LocationConfiguration
-import com.yayandroid.locationmanager.configuration.PermissionConfiguration
+import com.github.kittinunf.result.failure
+import com.github.kittinunf.result.mapError
+import io.nlopez.smartlocation.SmartLocation
+import io.nlopez.smartlocation.location.config.LocationParams
+import io.nlopez.smartlocation.location.providers.LocationManagerProvider
 import kotterknife.bindView
+import org.koin.android.architecture.ext.getViewModel
+import org.koin.android.ext.android.inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import java.util.concurrent.ScheduledThreadPoolExecutor
-import android.arch.lifecycle.ViewModelProviders
-import org.koin.android.architecture.ext.getViewModel
-import org.koin.android.ext.android.inject
 import pl.polsl.student.personalnavigation.R
-import pl.polsl.student.personalnavigation.viewmodel.AsyncLoginService
-import pl.polsl.student.personalnavigation.model.BackendLoginService
 import pl.polsl.student.personalnavigation.model.LocationSender
 import pl.polsl.student.personalnavigation.util.SimpleMapListener
 import pl.polsl.student.personalnavigation.util.observeNotNull
-import pl.polsl.student.personalnavigation.viewmodel.DefaultViewModelFactory
+import pl.polsl.student.personalnavigation.viewmodel.AsyncLoginService
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
-import java.util.concurrent.ScheduledExecutorService
+import java8.util.Optional
+import org.jetbrains.anko.toast
+import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
 
 
-class MainActivity : LocationBaseActivity() {
+class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
-    private val NAME_KEY = "name"
     private val serverUrl by inject<String>("serverUrl")
     private val handler = Handler()
 
-    private val loginService by lazy { getViewModel<AsyncLoginService>() }
     private val markersViewModel by lazy { getViewModel<MarkersViewModel>() }
+    private val nameViewModel by lazy { getViewModel<NameViewModel>() }
 
-    private val locationSender: LocationSender by lazy {
-        LocationSender(
-                serverUrl,
-                {
-                    nameView.text.toString()
-                }
-        )
-    }
+    private val locationSender: LocationSender by inject()
 
     private val mapView: MapView by bindView(R.id.map)
     private val nameView: TextView by bindView(R.id.nameTextView)
     private val trackButton: ToggleButton by bindView(R.id.trackButton)
-    private val sharedPreferences: SharedPreferences by inject()
-    private var currentLocation: Location? = null
+    private val locationControl by lazy {
+        SmartLocation
+                .with(this@MainActivity)
+                .location(LocationManagerProvider())
+                .continuous()
+                .config(
+                        LocationParams.NAVIGATION
+                )
+    }
+    private var currentLocation = Optional.empty<Location>()
 
     //Depends on `mapView` - use only after layout inflation
     private val markersConsumer: MarkersConsumer by lazy {
@@ -81,48 +78,69 @@ class MainActivity : LocationBaseActivity() {
         mapView.setMultiTouchControls(true)
         mapView.controller.setZoom(9)
 
-        if (!sharedPreferences.contains(NAME_KEY)) {
-            showNameDialog(null)
-        } else {
-            nameView.text = sharedPreferences.getString(NAME_KEY, getString(R.string.your_name))
+        with(markersViewModel) {
+            markers.observeNotNull(this@MainActivity) {
+                markersConsumer.consume(it)
+            }
+
+            error.observeNotNull(this@MainActivity) {
+                Log.e(TAG, "Cannot download markers!", it)
+            }
         }
-
-        markersViewModel.markers.observeNotNull(
-                this,
-                 {
-                    markersConsumer.consume(
-                            it
-                    )
-                }
-        )
-
-        markersViewModel.error.observeNotNull(
-                this,
-                {
-                    Log.e(TAG, "Cannot download markers!", it)
-                }
-        )
 
         mapView.setMapListener(
                 SimpleMapListener {
+                    trackButton.isChecked = false
                     markersViewModel.setBoundingBox(mapView.boundingBox)
                 }
         )
 
-        getLocation()
-        refreshLocation()
-
-        loginService.login()
-        loginService.authenticationData.observeNotNull(
-                this,
-                {}
-        )
-        loginService.error.observeNotNull(
-                this,
-                {
-                    Log.e(TAG, "Cannot login!", it)
+        trackButton.setOnClickListener {
+            if (trackButton.isChecked) {
+                mapView.isFlingEnabled
+                currentLocation.ifPresent {
+                    mapView.controller.setCenter(GeoPoint(it))
                 }
-        )
+            }
+        }
+
+        currentLocation = Optional.ofNullable(locationControl.lastLocation)
+
+        locationControl
+                .start {
+                    runOnUiThread {
+                        currentLocation = Optional.of(it)
+                        if (trackButton.isChecked) {
+                            mapView.controller.setCenter(GeoPoint(it))
+                        }
+                    }
+                }
+
+        nameViewModel.name.observeNotNull(this) {
+            nameInputDialog.setName(it)
+            nameView.text = it
+        }
+
+        if (nameViewModel.name.value == null) {
+            nameInputDialog.show()
+        }
+
+        postLocation()
+    }
+
+    private fun postLocation() {
+        currentLocation.ifPresent {
+                    locationSender
+                            .postLocation(it, nameViewModel.name.value ?: "Noname")
+                            .thenAccept {
+                                runOnUiThread {
+                                    it.failure {
+                                        toast(it.message.toString())
+                                    }
+                                    handler.postDelayed(this::postLocation, 500)
+                                }
+                            }
+                }
     }
 
 
@@ -135,55 +153,15 @@ class MainActivity : LocationBaseActivity() {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
     }
 
-    private fun refreshLocation() {
-        val location = currentLocation
-        handler.postDelayed(this::refreshLocation, 1000L)
-        if (location != null) {
-            if (trackButton.isChecked) {
-                mapView.controller.setCenter(GeoPoint(currentLocation))
-            }
-
-            locationSender.postLocation(location)
-        }
-    }
-
     fun showNameDialog(view: View?) {
         nameInputDialog.show()
     }
 
     private fun onNameEntered(name: String) {
-        nameView.text = name
-        sharedPreferences.edit().putString(NAME_KEY, name).apply()
-    }
-
-    override fun onLocationFailed(type: Int) {
-        Log.e(TAG, "On location failed: $type")
-        handler.postDelayed(this::getLocation, 500)
-    }
-
-    override fun getLocationConfiguration(): LocationConfiguration {
-        return LocationConfiguration.Builder()
-                //.keepTracking(true)
-                .askForPermission(
-                        PermissionConfiguration.Builder().rationaleMessage(
-                        "Need location permission"
-                        ).build()
-                )
-                .useDefaultProviders(
-                        DefaultProviderConfiguration
-                                .Builder()
-                                .build()
-                )
-                .build()
-    }
-
-    override fun onLocationChanged(location: Location) {
-        Log.i(TAG, location.toString())
-        currentLocation = location
-        if (trackButton.isChecked) {
-            mapView.controller.setCenter(GeoPoint(location))
+        try {
+            nameViewModel.setName(name)
+        } catch (e: Exception) {
+            toast(e.message.toString())
         }
-        handler.postDelayed(this::getLocation, 100)
     }
-
 }
