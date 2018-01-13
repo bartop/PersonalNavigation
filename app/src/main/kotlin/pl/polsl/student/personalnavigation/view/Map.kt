@@ -1,6 +1,7 @@
 package pl.polsl.student.personalnavigation.view
 
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.FolderOverlay
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
 /**
@@ -10,10 +11,17 @@ class Map(
         private val map: MapView,
         private val overlayMarkersFactory: OverlayMarkersFactory
 ) : MarkersConsumer {
+    private val markersFolder = FolderOverlay()
+
+    init {
+        map.overlays.add(markersFolder)
+    }
 
     override fun consume(markers: Iterable<IdentifiableMarker>) {
-            map.overlays.clear()
-            markers.forEach { marker -> map.overlays.add(overlayMarkersFactory.create(marker)) }
-            map.invalidate()
+        markersFolder.items.clear()
+        markers
+                .map(overlayMarkersFactory::create)
+                .forEach { markersFolder.add(it) }
+        map.invalidate()
     }
 }

@@ -7,13 +7,12 @@ import org.koin.dsl.module.applicationContext
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
-import pl.polsl.student.personalnavigation.viewmodel.AsyncLoginService
+import pl.polsl.student.personalnavigation.viewmodel.UserIdViewModel
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.ScheduledThreadPoolExecutor
 
 
 val koinModule = applicationContext {
@@ -34,6 +33,6 @@ val koinModule = applicationContext {
     }
     provide { LocationSender(get("serverUrl"), get(), get()) }
     viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f)) }
-    viewModel { AsyncLoginService(get(), get()) }
+    viewModel { UserIdViewModel(get(), get()) }
     viewModel { NameViewModel(get()) }
 }

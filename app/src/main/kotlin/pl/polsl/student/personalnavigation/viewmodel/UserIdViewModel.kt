@@ -9,26 +9,29 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-class AsyncLoginService(
+class UserIdViewModel(
         private val authenticationService: AuthenticationService,
         private val executor: ScheduledExecutorService
 ): ViewModel() {
-    private val mutableAuthenticationData: MutableLiveData<AuthenticationData> = MutableLiveData()
-
+    private val mutableUserId: MutableLiveData<Long> = MutableLiveData()
     private val mutableError: MutableLiveData<Exception> = MutableLiveData()
 
-    fun login() {
-        try {
-           // mutableAuthenticationData.postValue(authenticationService.login())
-        } catch (e: Exception) {
-            mutableError.postValue(e)
-            executor.schedule(this::login, 500, TimeUnit.MILLISECONDS)
+    init {
+        executor.execute {
+            loadId()
         }
     }
 
-    val authenticationData: LiveData<AuthenticationData>
-        get() = mutableAuthenticationData
+    private fun loadId() {
+        try {
+            mutableUserId.postValue(authenticationService.authentication().id)
+        } catch (e: Exception) {
+            mutableError.postValue(e)
+            executor.schedule(this::loadId, 500, TimeUnit.MILLISECONDS)
+        }
+    }
 
-    val error: LiveData<Exception>
-        get() = mutableError
+    val userId: LiveData<Long> = mutableUserId
+
+    val error: LiveData<Exception> = mutableError
 }

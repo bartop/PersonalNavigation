@@ -64,7 +64,7 @@ class BackendAuthenticationService(
             register()
         }
 
-        val (request, response) = Fuel
+        val (_, response) = Fuel
                 .post("$url/authenticate")
                 .jsonBody(authenticationData)
                 .responseString()

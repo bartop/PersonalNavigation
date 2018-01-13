@@ -1,17 +1,16 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.content.SharedPreferences
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import android.widget.ToggleButton
 import com.github.kittinunf.result.failure
-import com.github.kittinunf.result.mapError
 import io.nlopez.smartlocation.SmartLocation
 import io.nlopez.smartlocation.location.config.LocationParams
 import io.nlopez.smartlocation.location.providers.LocationManagerProvider
@@ -25,11 +24,13 @@ import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.LocationSender
 import pl.polsl.student.personalnavigation.util.SimpleMapListener
 import pl.polsl.student.personalnavigation.util.observeNotNull
-import pl.polsl.student.personalnavigation.viewmodel.AsyncLoginService
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import java8.util.Optional
+import kotlinx.android.synthetic.main.activity_map.*
+import org.jetbrains.anko.sdk25.coroutines.onTouch
 import org.jetbrains.anko.toast
 import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
+import pl.polsl.student.personalnavigation.viewmodel.UserIdViewModel
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private val markersViewModel by lazy { getViewModel<MarkersViewModel>() }
     private val nameViewModel by lazy { getViewModel<NameViewModel>() }
+    private val userIdViewModel by lazy { getViewModel<UserIdViewModel>() }
 
     private val locationSender: LocationSender by inject()
 
@@ -57,10 +59,14 @@ class MainActivity : AppCompatActivity() {
     private var currentLocation = Optional.empty<Location>()
 
     //Depends on `mapView` - use only after layout inflation
+    private val markersFactory: OverlayMarkersFactory by lazy {
+        DefaultOverlayMarkersFactory(this, mapView, this::onMarkerLongPressed)
+    }
+
     private val markersConsumer: MarkersConsumer by lazy {
         Map(
                 mapView,
-                DefaultOverlayMarkersFactory(mapView)
+                markersFactory
         )
     }
 
@@ -88,9 +94,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        userIdViewModel.userId.observeNotNull(this) {
+            markersFactory.setUserId(it)
+        }
+
         mapView.setMapListener(
                 SimpleMapListener {
-                    trackButton.isChecked = false
                     markersViewModel.setBoundingBox(mapView.boundingBox)
                 }
         )
@@ -123,6 +132,13 @@ class MainActivity : AppCompatActivity() {
 
         if (nameViewModel.name.value == null) {
             nameInputDialog.show()
+        }
+
+        mapView.onTouch {
+            v, event ->
+            if (event.action == MotionEvent.ACTION_MOVE) {
+                trackButton.isChecked = false
+            }
         }
 
         postLocation()
@@ -163,5 +179,9 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             toast(e.message.toString())
         }
+    }
+
+    private fun onMarkerLongPressed(marker: CustomMarker) {
+        markersFactory.setTrackedId(marker.model.id)
     }
 }
