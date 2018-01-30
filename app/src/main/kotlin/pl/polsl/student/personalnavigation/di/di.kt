@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService
 
 val koinModule = applicationContext {
     provide("serverUrl") { "http://10.0.2.2:8080" }
+    provide { TrackedMarker() }
     provide { Executors.newScheduledThreadPool(8) as ScheduledExecutorService }
     provide { get<ScheduledExecutorService>() as Executor }
     provide { RoadProducer(get(), OSRMRoadManager(get())) }
@@ -35,8 +36,8 @@ val koinModule = applicationContext {
                 )
     }
     provide { LocationSender(get("serverUrl"), get(), get()) }
-    viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f)) }
+    viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get()) }
     viewModel { UserIdViewModel(get(), get()) }
     viewModel { NameViewModel(get()) }
-    viewModel { RoadViewModel(get(), get()) }
+    viewModel { RoadViewModel(get(), get(), get()) }
 }

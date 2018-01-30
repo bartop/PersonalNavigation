@@ -156,6 +156,24 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     )
                 }
 
+        markersViewModel
+                .trackedMarker
+                .observeNotNull(this) {
+                    it.ifPresentOrElse(
+                            { markersFactory.setTrackedId(it.id) },
+                            markersFactory::resetTrackedId
+                    )
+                }
+
+        markersViewModel
+                .trackedMarker
+                .observeNotNull(this) {
+                    it.ifPresentOrElse(
+                            { cancelTrackButton.visibility = View.VISIBLE },
+                            { cancelTrackButton.visibility = View.INVISIBLE }
+                    )
+                }
+
         postLocation()
 
         cancelTrackButton.onClick { cancelTracking() }
@@ -189,9 +207,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun cancelTracking() {
-        roadViewModel.stopTracking()
-        markersFactory.resetTrackedId()
-        cancelTrackButton.visibility = View.INVISIBLE
+        markersViewModel.resetTrackedMarker()
     }
 
     private fun onNameEntered(name: String) {
@@ -203,8 +219,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun onMarkerLongPressed(marker: CustomMarker) {
-        markersFactory.setTrackedId(marker.model.id)
-        roadViewModel.setTrackedId(marker.model.id)
-        cancelTrackButton.visibility = View.VISIBLE
+        markersViewModel.trackMarkerWithId(marker.model.id)
     }
 }

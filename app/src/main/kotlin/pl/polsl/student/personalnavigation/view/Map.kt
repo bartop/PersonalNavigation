@@ -6,9 +6,6 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
-/**
- * Created by Bartosz Miera on 2017-12-12.
- */
 class Map(
         private val map: MapView,
         private val overlayMarkersFactory: OverlayMarkersFactory
@@ -17,7 +14,7 @@ class Map(
     private val roadFolder = FolderOverlay()
 
     init {
-        map.overlays.addAll(listOf(markersFolder, roadFolder))
+        map.overlays.addAll(listOf(roadFolder, markersFolder))
     }
 
     override fun consume(markers: Iterable<IdentifiableMarker>) {

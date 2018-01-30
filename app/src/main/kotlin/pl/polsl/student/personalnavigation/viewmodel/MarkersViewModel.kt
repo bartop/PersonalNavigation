@@ -7,6 +7,7 @@ import java8.util.Optional
 import org.osmdroid.util.BoundingBox
 import pl.polsl.student.personalnavigation.model.MarkersSource
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
+import pl.polsl.student.personalnavigation.model.TrackedMarker
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -15,14 +16,12 @@ import java.util.concurrent.atomic.AtomicReference
 class MarkersViewModel(
         private val executor: ScheduledExecutorService,
         private val markersSource: MarkersSource,
-        private val boundingBoxTransform: (BoundingBox) -> BoundingBox
+        private val boundingBoxTransform: (BoundingBox) -> BoundingBox,
+        private val trackedMarkerModel: TrackedMarker
 ) : ViewModel() {
     private val atomicBoundingBox = AtomicReference<BoundingBox>(
             BoundingBox(0.0, 0.0, 0.0, 0.0)
     )
-
-    private val trackedMarkerId = AtomicReference<Optional<Long>>(Optional.empty())
-
     private val mutableMarkers: MutableLiveData<Set<IdentifiableMarker>> = MutableLiveData()
 
     private val mutableTrackedMarker: MutableLiveData<Optional<IdentifiableMarker>> = MutableLiveData()
@@ -38,20 +37,26 @@ class MarkersViewModel(
     }
 
     fun trackMarkerWithId(id: Long) {
-        trackedMarkerId.set(Optional.of(id))
+        trackedMarkerModel.set(id)
     }
 
     fun resetTrackedMarker() {
-        trackedMarkerId.set(Optional.empty())
+        trackedMarkerModel.reset()
     }
 
     private fun downloadMarkers() {
         try {
-            val downloadedTrackedMarker = trackedMarkerId.get().map {
+            val downloadedTrackedMarker = trackedMarkerModel.get().map {
                 markersSource.getMarker(it)
             }
 
             val downloadedMarkers = markersSource.getMarkersIn(atomicBoundingBox.get())
+
+            if (!downloadedTrackedMarker.isPresent) {
+                if (trackedMarkerModel.get().isPresent) {
+                    trackedMarkerModel.reset()
+                }
+            }
 
             mutableMarkers.postValue(downloadedMarkers)
 

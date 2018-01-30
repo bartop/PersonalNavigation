@@ -10,24 +10,26 @@ import org.osmdroid.bonuspack.routing.Road
 import pl.polsl.student.personalnavigation.model.AuthenticationService
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 import pl.polsl.student.personalnavigation.model.RoadProducer
+import pl.polsl.student.personalnavigation.model.TrackedMarker
 import pl.polsl.student.personalnavigation.view.MarkersConsumer
 
 
 class RoadViewModel(
         private val authenticationService: AuthenticationService,
-        private val roadProducer: RoadProducer
+        private val roadProducer: RoadProducer,
+        private val trackedMarker: TrackedMarker
 ): ViewModel(), AnkoLogger, MarkersConsumer {
-    private var trackedId: Optional<Long> = Optional.empty()
     private val mutableRoad: MutableLiveData<Optional<Road>> = MutableLiveData()
 
     override fun consume(markers: Iterable<IdentifiableMarker>) {
         try {
             val userMarker = markers.first { it.id == authenticationService.authentication().id }
-            val trackedMarker = trackedId.map { id ->
+
+            trackedMarker.get().map {
+                id ->
                 markers.first { it.id == id }
             }
-
-            trackedMarker.ifPresentOrElse(
+            .ifPresentOrElse(
                     {
                         roadProducer
                                 .roadBetween(
@@ -46,14 +48,6 @@ class RoadViewModel(
         } catch (e: Exception) {
             error("Cannot find the road!", e)
         }
-    }
-
-    fun setTrackedId(id: Long) {
-        trackedId = Optional.of(id)
-    }
-
-    fun stopTracking() {
-        trackedId = Optional.empty()
     }
 
     val road: LiveData<Optional<Road>> = mutableRoad
