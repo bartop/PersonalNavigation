@@ -46,8 +46,12 @@ class MarkersViewModel(
 
     private fun downloadMarkers() {
         try {
-            val downloadedTrackedMarker = trackedMarkerModel.get().map {
-                markersSource.getMarker(it)
+            val downloadedTrackedMarker = trackedMarkerModel.get().flatMap {
+                try {
+                    Optional.of(markersSource.getMarker(it))
+                } catch (e: Exception) {
+                    Optional.empty<IdentifiableMarker>()
+                }
             }
 
             val downloadedMarkers = markersSource.getMarkersIn(atomicBoundingBox.get())

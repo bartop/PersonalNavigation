@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
@@ -19,6 +18,7 @@ import java8.util.Optional
 import kotterknife.bindView
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.error
+import org.jetbrains.anko.info
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.sdk25.coroutines.onTouch
 import org.jetbrains.anko.toast
@@ -125,6 +125,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .start {
                     runOnUiThread {
                         currentLocation = Optional.of(it)
+                        if (it.hasBearing()) {
+                            info("Setting bearing ${it.bearing}")
+                            markersFactory.setUserBearing(it.bearing)
+                        } else {
+                            markersFactory.resetUserBearing()
+                        }
                         if (trackButton.isChecked) {
                             mapView.controller.setCenter(GeoPoint(it))
                         }

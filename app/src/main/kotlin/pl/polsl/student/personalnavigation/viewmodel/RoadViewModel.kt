@@ -23,11 +23,19 @@ class RoadViewModel(
 
     override fun consume(markers: Iterable<IdentifiableMarker>) {
         try {
-            val userMarker = markers.first { it.id == authenticationService.authentication().id }
+            val userMarker = markers.firstOrNull {
+                it.id == authenticationService.authentication().id
+            } ?: return
 
-            trackedMarker.get().map {
+            trackedMarker.get().flatMap {
                 id ->
-                markers.first { it.id == id }
+                val marker  = markers.firstOrNull { it.id == id }
+
+                if (marker != null) {
+                    Optional.of(marker)
+                } else {
+                    Optional.empty<IdentifiableMarker>()
+                }
             }
             .ifPresentOrElse(
                     {

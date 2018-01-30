@@ -8,4 +8,6 @@ interface OverlayMarkersFactory {
     fun setUserId(userId: Long)
     fun setTrackedId(trackedId: Long)
     fun resetTrackedId()
+    fun setUserBearing(bearing: Float)
+    fun resetUserBearing()
 }
