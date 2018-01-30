@@ -26,6 +26,10 @@ class DefaultOverlayMarkersFactory(
         this.trackedId = Optional.of(trackedId)
     }
 
+    override fun resetTrackedId() {
+        trackedId = Optional.empty()
+    }
+
     override fun create(marker: IdentifiableMarker): org.osmdroid.views.overlay.Marker {
         val displayableMarker = CustomMarker(
                 mapView,
