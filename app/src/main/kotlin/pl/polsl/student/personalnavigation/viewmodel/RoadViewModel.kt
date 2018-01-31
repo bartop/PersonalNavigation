@@ -20,10 +20,19 @@ class RoadViewModel(
         private val trackedMarker: TrackedMarker
 ): ViewModel(), AnkoLogger {
     private val distanceLimit = 4
+    private val targetReachedLimit = 8
     private val mutableRoad: MutableLiveData<Optional<Road>> = MutableLiveData()
 
     private var userPosition: GeoPoint = GeoPoint(0.0, 0.0)
     private var trackedPosition: Optional<GeoPoint> = Optional.empty()
+
+    init {
+        trackedMarker.addListener {
+            if (!it.isPresent) {
+                resetTrackedPosition()
+            }
+        }
+    }
 
     fun setUserPosition(position: GeoPoint) {
         if (position.distanceTo(userPosition) > distanceLimit) {
@@ -53,21 +62,27 @@ class RoadViewModel(
 
     fun updateRoad() {
         trackedPosition
-                .ifPresent {
-                    if (it.distanceTo(userPosition) < distanceLimit) {
-                        trackedMarker.reset()
-                        mutableRoad.postValue(Optional.empty())
-                    } else {
-                        roadProducer
-                                .roadBetween(
-                                        userPosition,
-                                        it
-                                )
-                                .thenAccept {
-                                    mutableRoad.postValue(Optional.of(it))
-                                }
-                    }
-                }
+                .ifPresentOrElse(
+                        {
+                            if (it.distanceTo(userPosition) < targetReachedLimit) {
+                                trackedMarker.reset()
+                            } else {
+                                roadProducer
+                                        .roadBetween(
+                                                userPosition,
+                                                it
+                                        )
+                                        .thenAccept {
+                                            if (trackedMarker.get().isPresent) {
+                                                mutableRoad.postValue(Optional.of(it))
+                                            }
+                                        }
+                            }
+                        },
+                        {
+                           mutableRoad.postValue(Optional.empty())
+                        }
+                )
     }
 
     val road: LiveData<Optional<Road>> = mutableRoad

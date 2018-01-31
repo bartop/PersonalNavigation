@@ -4,6 +4,7 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
 import android.view.View
@@ -43,6 +44,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private val locationSender: LocationSender by inject()
 
+    private val nameLayout: View by bindView(R.id.nameLayout)
+    private val directionsLayout: View by bindView(R.id.directionsLayout)
+    private val directionTextView: TextView by bindView(R.id.directionTextView)
+    private val durationTextView: TextView by bindView(R.id.durationTextView)
+
     private val mapView: MapView by bindView(R.id.map)
     private val nameView: TextView by bindView(R.id.nameTextView)
     private val trackButton: ToggleButton by bindView(R.id.trackButton)
@@ -80,6 +86,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         //important! set your user agent to prevent getting banned from the osm servers
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         setContentView(R.layout.activity_main)
+
+        with (supportActionBar!!) {
+            displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+            setDisplayShowCustomEnabled(true)
+            setCustomView(R.layout.custom_action_bar_layout)
+        }
 
         mapView.controller.setZoom(mapViewModel.zoom.value!!)
         mapView.controller.setCenter(mapViewModel.center.value)
@@ -152,6 +164,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
 
+        nameView.onClick {
+            showNameDialog()
+        }
+
         roadViewModel
                 .road
                 .observeNotNull(this) {
@@ -164,9 +180,18 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         roadViewModel
                 .road
                 .observeNotNull(this) {
-                    it.ifPresent {
-                        info(it.mNodes.firstOrNull()?.mInstructions)
-                    }
+                    it.ifPresentOrElse(
+                            {
+                                nameLayout.visibility = View.INVISIBLE
+                                directionsLayout.visibility = View.VISIBLE
+                                directionTextView.text = it.mNodes.firstOrNull()?.mInstructions
+                                durationTextView.text = it.getLengthDurationText(this, 0)
+                            },
+                            {
+                                nameLayout.visibility = View.VISIBLE
+                                directionsLayout.visibility = View.INVISIBLE
+                            }
+                    )
                 }
 
         markersViewModel
@@ -236,7 +261,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         postLocation()
     }
 
-    fun showNameDialog(v: View?) {
+    private fun showNameDialog() {
         nameInputDialog.show()
     }
 

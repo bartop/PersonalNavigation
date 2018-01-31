@@ -26,4 +26,9 @@ class CustomMarker(
         onLongPressListener(this)
         return super.onLongPress(event, mapView)
     }
+
+    override fun onDoubleTap(e: MotionEvent?, mapView: MapView?): Boolean {
+        onLongPressListener(this)
+        return super.onDoubleTap(e, mapView)
+    }
 }

@@ -4,11 +4,14 @@ import android.content.Context
 import android.content.ContextWrapper
 import org.koin.android.architecture.ext.viewModel
 import org.koin.dsl.module.applicationContext
+import org.osmdroid.bonuspack.routing.MapQuestRoadManager
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.bonuspack.routing.RoadManager
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
 import pl.polsl.student.personalnavigation.viewmodel.*
+import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -16,10 +19,17 @@ import java.util.concurrent.ScheduledExecutorService
 
 val koinModule = applicationContext {
     provide("serverUrl") { "http://192.168.192.133:8080" }
+    provide {
+        {
+            val roadManager = MapQuestRoadManager(MapQuestApiKey)
+            roadManager.addRequestOption("routeType=pedestrian")
+            roadManager
+        }() as RoadManager
+    }
     provide { TrackedMarker() }
     provide { Executors.newScheduledThreadPool(8) as ScheduledExecutorService }
     provide { get<ScheduledExecutorService>() as Executor }
-    provide { RoadProducer(get(), OSRMRoadManager(get())) }
+    provide { RoadProducer(get(), get()) }
 
     provide { BackendMarkersSource(get("serverUrl")) as MarkersSource }
     provide { BackendAuthenticationService(get(), get()) as AuthenticationService }
