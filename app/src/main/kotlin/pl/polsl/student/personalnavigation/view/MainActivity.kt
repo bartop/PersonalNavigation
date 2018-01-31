@@ -184,8 +184,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                             {
                                 nameLayout.visibility = View.INVISIBLE
                                 directionsLayout.visibility = View.VISIBLE
-                                directionTextView.text = it.mNodes.firstOrNull()?.mInstructions
+                                with (it.mNodes) {
+                                    directionTextView.text = getOrElse(1) { first() }.mInstructions
+                                }
                                 durationTextView.text = it.getLengthDurationText(this, 0)
+
+
                             },
                             {
                                 nameLayout.visibility = View.VISIBLE
