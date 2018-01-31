@@ -43,12 +43,13 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_margin="16dp"
+            android:checked="true"
             android:drawableTop="@android:drawable/ic_menu_mylocation"
             android:gravity="center"
             android:text=""
             android:textOff=""
             android:textOn=""
-            android:textSize="0sp"/>
+            android:textSize="0sp" />
 
 
     </RelativeLayout>

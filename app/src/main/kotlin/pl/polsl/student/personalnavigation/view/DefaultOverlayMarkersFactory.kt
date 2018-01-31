@@ -64,9 +64,9 @@ class DefaultOverlayMarkersFactory(
                         .map { R.drawable.navigation_arrow }
                         .orElse(R.drawable.marker_green)
             trackedId.map { marker.id == it }.orElse(false) ->
-                    R.drawable.marker_blue
+                    R.drawable.marker_cyan
             else ->
-                    R.drawable.marker_black
+                    R.drawable.marker_blue
         }
         return ResourcesCompat.getDrawable(context.resources, iconId, null)!!
     }

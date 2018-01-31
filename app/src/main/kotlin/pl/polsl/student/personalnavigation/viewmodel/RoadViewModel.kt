@@ -7,6 +7,7 @@ import java8.util.Optional
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.error
 import org.osmdroid.bonuspack.routing.Road
+import org.osmdroid.util.GeoPoint
 import pl.polsl.student.personalnavigation.model.AuthenticationService
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 import pl.polsl.student.personalnavigation.model.RoadProducer
@@ -15,47 +16,58 @@ import pl.polsl.student.personalnavigation.view.MarkersConsumer
 
 
 class RoadViewModel(
-        private val authenticationService: AuthenticationService,
         private val roadProducer: RoadProducer,
         private val trackedMarker: TrackedMarker
-): ViewModel(), AnkoLogger, MarkersConsumer {
+): ViewModel(), AnkoLogger {
+    private val distanceLimit = 4
     private val mutableRoad: MutableLiveData<Optional<Road>> = MutableLiveData()
 
-    override fun consume(markers: Iterable<IdentifiableMarker>) {
-        try {
-            val userMarker = markers.firstOrNull {
-                it.id == authenticationService.authentication().id
-            } ?: return
+    private var userPosition: GeoPoint = GeoPoint(0.0, 0.0)
+    private var trackedPosition: Optional<GeoPoint> = Optional.empty()
 
-            trackedMarker.get().flatMap {
-                id ->
-                val marker  = markers.firstOrNull { it.id == id }
+    fun setUserPosition(position: GeoPoint) {
+        if (position.distanceTo(userPosition) > distanceLimit) {
+            userPosition = position
+            updateRoad()
+        }
+    }
 
-                if (marker != null) {
-                    Optional.of(marker)
-                } else {
-                    Optional.empty<IdentifiableMarker>()
-                }
-            }
-            .ifPresentOrElse(
-                    {
+    fun setTrackedPosition(position: GeoPoint) {
+        val update = trackedPosition
+                .map { position.distanceTo(it) > distanceLimit }
+                .orElse(true)
+
+        if (update) {
+            trackedPosition = Optional.of(position)
+            updateRoad()
+        }
+
+    }
+
+    fun resetTrackedPosition() {
+        if (trackedPosition.isPresent) {
+            trackedPosition = Optional.empty()
+            mutableRoad.postValue(Optional.empty())
+        }
+    }
+
+    fun updateRoad() {
+        trackedPosition
+                .ifPresent {
+                    if (it.distanceTo(userPosition) < distanceLimit) {
+                        trackedMarker.reset()
+                        mutableRoad.postValue(Optional.empty())
+                    } else {
                         roadProducer
                                 .roadBetween(
-                                        userMarker.position.toGeoPoint(),
-                                        it.position.toGeoPoint()
+                                        userPosition,
+                                        it
                                 )
                                 .thenAccept {
                                     mutableRoad.postValue(Optional.of(it))
                                 }
-                    },
-                    {
-                        mutableRoad.postValue(Optional.empty())
                     }
-            )
-
-        } catch (e: Exception) {
-            error("Cannot find the road!", e)
-        }
+                }
     }
 
     val road: LiveData<Optional<Road>> = mutableRoad

@@ -5,9 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import java8.util.Optional
 import org.osmdroid.util.BoundingBox
-import pl.polsl.student.personalnavigation.model.MarkersSource
-import pl.polsl.student.personalnavigation.model.IdentifiableMarker
-import pl.polsl.student.personalnavigation.model.TrackedMarker
+import pl.polsl.student.personalnavigation.model.*
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -17,11 +15,15 @@ class MarkersViewModel(
         private val executor: ScheduledExecutorService,
         private val markersSource: MarkersSource,
         private val boundingBoxTransform: (BoundingBox) -> BoundingBox,
-        private val trackedMarkerModel: TrackedMarker
+        private val trackedMarkerModel: TrackedMarker,
+        private val authenticationService: AuthenticationService
 ) : ViewModel() {
     private val atomicBoundingBox = AtomicReference<BoundingBox>(
             BoundingBox(0.0, 0.0, 0.0, 0.0)
     )
+
+    private val mutableUserMarker: MutableLiveData<IdentifiableMarker> = MutableLiveData()
+
     private val mutableMarkers: MutableLiveData<Set<IdentifiableMarker>> = MutableLiveData()
 
     private val mutableTrackedMarker: MutableLiveData<Optional<IdentifiableMarker>> = MutableLiveData()
@@ -56,11 +58,17 @@ class MarkersViewModel(
 
             val downloadedMarkers = markersSource.getMarkersIn(atomicBoundingBox.get())
 
-            if (!downloadedTrackedMarker.isPresent) {
-                if (trackedMarkerModel.get().isPresent) {
-                    trackedMarkerModel.reset()
-                }
+            val userId = authenticationService.authentication().id
+
+            val userMarker = downloadedMarkers
+                    .firstOrNull { it.id == userId }
+                    ?: markersSource.getMarker(userId)
+
+            if (!downloadedTrackedMarker.isPresent && trackedMarkerModel.get().isPresent) {
+                trackedMarkerModel.reset()
             }
+
+            mutableUserMarker.postValue(userMarker)
 
             mutableMarkers.postValue(downloadedMarkers)
 
@@ -74,13 +82,12 @@ class MarkersViewModel(
         }
     }
 
-    val markers: LiveData<Set<IdentifiableMarker>>
-        get() = mutableMarkers
+    val markers: LiveData<Set<IdentifiableMarker>> = mutableMarkers
 
-    val trackedMarker: LiveData<Optional<IdentifiableMarker>>
-        get() = mutableTrackedMarker
+    val trackedMarker: LiveData<Optional<IdentifiableMarker>> = mutableTrackedMarker
 
-    val error: LiveData<Exception>
-        get() = mutableError
+    val userMarker: LiveData<IdentifiableMarker> = mutableUserMarker
+
+    val error: LiveData<Exception> = mutableError
 
 }

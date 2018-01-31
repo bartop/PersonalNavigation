@@ -29,14 +29,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.LocationSender
-import pl.polsl.student.personalnavigation.util.SimpleMapListener
-import pl.polsl.student.personalnavigation.util.observeNotNull
-import pl.polsl.student.personalnavigation.util.thenAcceptOnUiThread
-import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
-import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
-import pl.polsl.student.personalnavigation.viewmodel.RoadViewModel
-import pl.polsl.student.personalnavigation.viewmodel.UserIdViewModel
-
+import pl.polsl.student.personalnavigation.viewmodel.*
+import pl.polsl.student.personalnavigation.util.*
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
     private val handler = Handler()
@@ -45,6 +39,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private val nameViewModel by lazy { getViewModel<NameViewModel>() }
     private val userIdViewModel by lazy { getViewModel<UserIdViewModel>() }
     private val roadViewModel by lazy { getViewModel<RoadViewModel>() }
+    private val mapViewModel by lazy { getViewModel<MapViewModel>() }
 
     private val locationSender: LocationSender by inject()
 
@@ -86,13 +81,31 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         setContentView(R.layout.activity_main)
 
+        mapView.controller.setZoom(mapViewModel.zoom.value!!)
+        mapView.controller.setCenter(mapViewModel.center.value)
+
+        mapViewModel.center.observeNotNull(this) {
+            if (!it.hasSameLatitudeLongitude(mapView.mapCenter)) {
+                mapView.controller.setCenter(it)
+            }
+        }
+
         mapView.setMultiTouchControls(true)
-        mapView.controller.setZoom(9)
 
         with(markersViewModel) {
             markers.observeNotNull(this@MainActivity) {
                 map.consume(it)
-                roadViewModel.consume(it)
+            }
+
+            userMarker.observeNotNull(this@MainActivity) {
+                roadViewModel.setUserPosition(it.position.toGeoPoint())
+            }
+
+            trackedMarker.observeNotNull(this@MainActivity) {
+                it.ifPresentOrElse(
+                        { roadViewModel.setTrackedPosition(it.position.toGeoPoint()) },
+                        { roadViewModel.resetTrackedPosition() }
+                )
             }
 
             error.observeNotNull(this@MainActivity) {
@@ -107,35 +120,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         mapView.setMapListener(
                 SimpleMapListener {
                     markersViewModel.setBoundingBox(mapView.boundingBox)
+
+                    mapViewModel.setZoom(mapView.getZoomLevel(false))
+                    mapViewModel.setCenter(
+                            mapView.mapCenter.toGeoPoint()
+                    )
                 }
         )
 
         trackButton.setOnClickListener {
             if (trackButton.isChecked) {
-                mapView.isFlingEnabled
                 currentLocation.ifPresent {
-                    mapView.controller.setCenter(GeoPoint(it))
+                    mapViewModel.setCenter(GeoPoint(it))
                 }
             }
         }
-
-        currentLocation = Optional.ofNullable(locationControl.lastLocation)
-
-        locationControl
-                .start {
-                    runOnUiThread {
-                        currentLocation = Optional.of(it)
-                        if (it.hasBearing()) {
-                            info("Setting bearing ${it.bearing}")
-                            markersFactory.setUserBearing(it.bearing)
-                        } else {
-                            markersFactory.resetUserBearing()
-                        }
-                        if (trackButton.isChecked) {
-                            mapView.controller.setCenter(GeoPoint(it))
-                        }
-                    }
-                }
 
         nameViewModel.name.observeNotNull(this) {
             nameInputDialog.setName(it)
@@ -147,7 +146,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
 
         mapView.onTouch {
-            v, event ->
+            _, event ->
             if (event.action == MotionEvent.ACTION_MOVE) {
                 trackButton.isChecked = false
             }
@@ -160,6 +159,14 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                             map::showRoad,
                             map::clearRoad
                     )
+                }
+
+        roadViewModel
+                .road
+                .observeNotNull(this) {
+                    it.ifPresent {
+                        info(it.mNodes.firstOrNull()?.mInstructions)
+                    }
                 }
 
         markersViewModel
@@ -180,22 +187,24 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     )
                 }
 
-        postLocation()
-
         cancelTrackButton.onClick { cancelTracking() }
     }
 
     private fun postLocation() {
-        currentLocation.ifPresent {
-                    locationSender
-                            .postLocation(it, nameViewModel.name.value ?: "Noname")
-                            .thenAcceptOnUiThread(this) {
-                                    it.failure {
-                                        toast(it.message.toString())
+        currentLocation
+                .ifPresentOrElse(
+                        {
+                            locationSender
+                                    .postLocation(it, nameViewModel.name.value ?: "Noname")
+                                    .thenAcceptOnUiThread(this) {
+                                            it.failure {
+                                                toast(it.message.toString())
+                                            }
+                                            handler.postDelayed(this::postLocation, 500)
                                     }
-                                    handler.postDelayed(this::postLocation, 500)
-                            }
-                }
+                        },
+                        { handler.postDelayed(this::postLocation, 500) }
+                )
     }
 
 
@@ -206,10 +215,42 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+
+        startLocationUpdates()
+    }
+
+    private fun startLocationUpdates() {
+        val lastLocation = locationControl.lastLocation
+
+        if (lastLocation != null) {
+            updateLocation(lastLocation)
+        }
+
+        locationControl
+                .start {
+                    runOnUiThread {
+                        updateLocation(it)
+                    }
+                }
+
+        postLocation()
     }
 
     fun showNameDialog(v: View?) {
         nameInputDialog.show()
+    }
+
+    private fun updateLocation(location: Location) {
+            currentLocation = Optional.of(location)
+            if (location.hasBearing()) {
+                info("Setting bearing ${location.bearing}")
+                markersFactory.setUserBearing(location.bearing)
+            } else {
+                markersFactory.resetUserBearing()
+            }
+            if (trackButton.isChecked) {
+                mapViewModel.setCenter(GeoPoint(location))
+            }
     }
 
     private fun cancelTracking() {

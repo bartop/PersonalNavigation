@@ -2,6 +2,7 @@ package pl.polsl.student.personalnavigation.model
 
 import java8.util.concurrent.CompletableFuture
 import java8.util.function.Supplier
+import org.osmdroid.api.IGeoPoint
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.GeoPoint

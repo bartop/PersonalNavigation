@@ -49,6 +49,7 @@ dependencies {
     compile "org.jetbrains.anko:anko:0.10.4"
     compile "org.jetbrains.anko:anko-commons:0.10.4"
 
+    implementation 'com.yanzhenjie:permission:2.0.0-alpha'
 
     compile "org.koin:koin-core:0.8.0"
     compile "org.koin:koin-android:0.8.0"

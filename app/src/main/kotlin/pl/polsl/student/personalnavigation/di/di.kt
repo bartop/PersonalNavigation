@@ -8,17 +8,14 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
-import pl.polsl.student.personalnavigation.viewmodel.UserIdViewModel
-import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
-import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
-import pl.polsl.student.personalnavigation.viewmodel.RoadViewModel
+import pl.polsl.student.personalnavigation.viewmodel.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 
 val koinModule = applicationContext {
-    provide("serverUrl") { "http://10.0.2.2:8080" }
+    provide("serverUrl") { "http://192.168.192.133:8080" }
     provide { TrackedMarker() }
     provide { Executors.newScheduledThreadPool(8) as ScheduledExecutorService }
     provide { get<ScheduledExecutorService>() as Executor }
@@ -36,8 +33,9 @@ val koinModule = applicationContext {
                 )
     }
     provide { LocationSender(get("serverUrl"), get(), get()) }
-    viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get()) }
+    viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get(), get()) }
     viewModel { UserIdViewModel(get(), get()) }
     viewModel { NameViewModel(get()) }
-    viewModel { RoadViewModel(get(), get(), get()) }
+    viewModel { RoadViewModel(get(), get()) }
+    viewModel { MapViewModel(get()) }
 }
