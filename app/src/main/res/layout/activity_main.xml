@@ -16,16 +16,6 @@
 
         </org.osmdroid.views.MapView>
 
-        <ImageButton
-            android:id="@+id/cancelTrackButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_margin="16dp"
-            android:background="@android:drawable/btn_dialog"
-            android:visibility="invisible" />
-
         <ToggleButton
             android:id="@+id/trackButton"
             android:layout_width="wrap_content"

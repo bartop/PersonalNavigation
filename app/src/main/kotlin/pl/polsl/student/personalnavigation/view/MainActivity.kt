@@ -42,17 +42,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private val roadViewModel by lazy { getViewModel<RoadViewModel>() }
     private val mapViewModel by lazy { getViewModel<MapViewModel>() }
 
+    private lateinit var actionBar: CustomActionBar
+
     private val locationSender: LocationSender by inject()
 
-    private val nameLayout: View by bindView(R.id.nameLayout)
-    private val directionsLayout: View by bindView(R.id.directionsLayout)
-    private val directionTextView: TextView by bindView(R.id.directionTextView)
-    private val durationTextView: TextView by bindView(R.id.durationTextView)
-
     private val mapView: MapView by bindView(R.id.map)
-    private val nameView: TextView by bindView(R.id.nameTextView)
     private val trackButton: ToggleButton by bindView(R.id.trackButton)
-    private val cancelTrackButton: ImageButton by bindView(R.id.cancelTrackButton)
     private val locationControl by lazy {
         SmartLocation
                 .with(this@MainActivity)
@@ -86,12 +81,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         //important! set your user agent to prevent getting banned from the osm servers
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
         setContentView(R.layout.activity_main)
-
-        with (supportActionBar!!) {
-            displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-            setDisplayShowCustomEnabled(true)
-            setCustomView(R.layout.custom_action_bar_layout)
-        }
 
         mapView.controller.setZoom(mapViewModel.zoom.value!!)
         mapView.controller.setCenter(mapViewModel.center.value)
@@ -148,24 +137,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
 
-        nameViewModel.name.observeNotNull(this) {
-            nameInputDialog.setName(it)
-            nameView.text = it
-        }
-
-        if (nameViewModel.name.value == null) {
-            nameInputDialog.show()
-        }
-
         mapView.onTouch {
             _, event ->
             if (event.action == MotionEvent.ACTION_MOVE) {
                 trackButton.isChecked = false
             }
-        }
-
-        nameView.onClick {
-            showNameDialog()
         }
 
         roadViewModel
@@ -174,27 +150,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     it.ifPresentOrElse(
                             map::showRoad,
                             map::clearRoad
-                    )
-                }
-
-        roadViewModel
-                .road
-                .observeNotNull(this) {
-                    it.ifPresentOrElse(
-                            {
-                                nameLayout.visibility = View.INVISIBLE
-                                directionsLayout.visibility = View.VISIBLE
-                                with (it.mNodes) {
-                                    directionTextView.text = getOrElse(1) { first() }.mInstructions
-                                }
-                                durationTextView.text = it.getLengthDurationText(this, 0)
-
-
-                            },
-                            {
-                                nameLayout.visibility = View.VISIBLE
-                                directionsLayout.visibility = View.INVISIBLE
-                            }
                     )
                 }
 
@@ -207,16 +162,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     )
                 }
 
-        markersViewModel
-                .trackedMarker
-                .observeNotNull(this) {
-                    it.ifPresentOrElse(
-                            { cancelTrackButton.visibility = View.VISIBLE },
-                            { cancelTrackButton.visibility = View.INVISIBLE }
-                    )
-                }
-
-        cancelTrackButton.onClick { cancelTracking() }
+        actionBar = CustomActionBar(this)
     }
 
     private fun postLocation() {
@@ -280,10 +226,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             if (trackButton.isChecked) {
                 mapViewModel.setCenter(GeoPoint(location))
             }
-    }
-
-    private fun cancelTracking() {
-        markersViewModel.resetTrackedMarker()
     }
 
     private fun onNameEntered(name: String) {
