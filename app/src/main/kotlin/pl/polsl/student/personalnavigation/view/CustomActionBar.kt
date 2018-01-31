@@ -1,13 +1,11 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.app.Activity
 import android.media.Image
-import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
-import kotterknife.bindView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.toast
@@ -27,6 +25,8 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val durationTextView by lazy { activity.find<TextView>(R.id.durationTextView) }
     private val nameView by lazy { activity.find<TextView>(R.id.nameTextView) }
     private val cancelTrackButton by lazy { activity.find<ImageButton>(R.id.cancelTrackButton) }
+    private val maneuverImage by lazy { activity.find<ImageView>(R.id.maneuverImage) }
+
 
 
     private val nameInputDialog by lazy {
@@ -36,6 +36,7 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val nameViewModel by lazy { activity.getViewModel<NameViewModel>() }
     private val markersViewModel by lazy { activity.getViewModel<MarkersViewModel>() }
     private val roadViewModel by lazy { activity.getViewModel<RoadViewModel>() }
+    private val maneuverIconProvider = ManeuverIconProvider(activity)
 
     init {
         with (activity.supportActionBar!!) {
@@ -52,10 +53,11 @@ class CustomActionBar(private val activity: AppCompatActivity) {
                                 nameLayout.visibility = View.INVISIBLE
                                 directionsLayout.visibility = View.VISIBLE
                                 with (it.mNodes) {
-                                    directionTextView.text = getOrElse(1) { first() }.mInstructions
+                                    val currentNode = getOrElse(1) { first() }
+                                    directionTextView.text = currentNode.mInstructions
+                                    maneuverImage.setImageDrawable(maneuverIconProvider(currentNode))
                                 }
                                 durationTextView.text = it.getLengthDurationText(activity, 0)
-
 
                             },
                             {
