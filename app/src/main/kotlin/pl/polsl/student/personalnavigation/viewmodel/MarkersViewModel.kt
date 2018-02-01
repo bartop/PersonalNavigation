@@ -48,7 +48,8 @@ class MarkersViewModel(
 
     private fun downloadMarkers() {
         try {
-            val downloadedTrackedMarker = trackedMarkerModel.get().flatMap {
+            val trackedMarker = trackedMarkerModel.get()
+            val downloadedTrackedMarker = trackedMarker.flatMap {
                 try {
                     Optional.of(markersSource.getMarker(it))
                 } catch (e: Exception) {
@@ -64,7 +65,7 @@ class MarkersViewModel(
                     .firstOrNull { it.id == userId }
                     ?: markersSource.getMarker(userId)
 
-            if (!downloadedTrackedMarker.isPresent && trackedMarkerModel.get().isPresent) {
+            if (!downloadedTrackedMarker.isPresent && trackedMarker.isPresent) {
                 trackedMarkerModel.reset()
             }
 

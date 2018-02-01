@@ -8,27 +8,20 @@ import org.osmdroid.views.MapView
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.AuthenticationService
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
+import pl.polsl.student.personalnavigation.model.TrackedMarker
 
 
 class DefaultOverlayMarkersFactory(
         private val context: Context,
         private val mapView: MapView,
+        private val trackedMarker: TrackedMarker,
         private val onLongPressListener: (CustomMarker) -> Unit
 ): OverlayMarkersFactory {
     private var userId: Optional<Long> = Optional.empty()
-    private var trackedId: Optional<Long> = Optional.empty()
     private var bearing = Optional.empty<Float>()
 
     override fun setUserId(userId: Long) {
         this.userId = Optional.of(userId)
-    }
-
-    override fun setTrackedId(trackedId: Long) {
-        this.trackedId = Optional.of(trackedId)
-    }
-
-    override fun resetTrackedId() {
-        trackedId = Optional.empty()
     }
 
     override fun create(marker: IdentifiableMarker): org.osmdroid.views.overlay.Marker {
@@ -63,7 +56,7 @@ class DefaultOverlayMarkersFactory(
                 bearing
                         .map { R.drawable.navigation_arrow }
                         .orElse(R.drawable.marker_green)
-            trackedId.map { marker.id == it }.orElse(false) ->
+            trackedMarker.get().map { marker.id == it }.orElse(false) ->
                     R.drawable.marker_cyan
             else ->
                     R.drawable.marker_blue

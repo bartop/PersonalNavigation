@@ -13,22 +13,28 @@ class CustomMarker(
         context: Context,
         icon: Drawable,
         val model: IdentifiableMarker,
-        private val onLongPressListener: (CustomMarker) -> Unit
+        val onPressListener: (CustomMarker) -> Unit
 ) : Marker(mapView, context) {
 
     init {
         setIcon(icon)
         position  = model.position.toGeoPoint()
         title = model.name
+        setOnMarkerClickListener { _, _ ->
+            onPressListener(this)
+            true
+        }
+        infoWindow = CustomInfoWindow(mapView)
+        showInfoWindow()
     }
 
     override fun onLongPress(event: MotionEvent?, mapView: MapView?): Boolean {
-        onLongPressListener(this)
+        onPressListener(this)
         return super.onLongPress(event, mapView)
     }
 
     override fun onDoubleTap(e: MotionEvent?, mapView: MapView?): Boolean {
-        onLongPressListener(this)
+        onPressListener(this)
         return super.onDoubleTap(e, mapView)
     }
 }

@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -31,6 +32,8 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val nameView by lazy { activity.find<TextView>(R.id.nameTextView) }
     private val cancelTrackButton by lazy { activity.find<ImageButton>(R.id.cancelTrackButton) }
     private val maneuverImage by lazy { activity.find<ImageView>(R.id.maneuverImage) }
+    private val roadProgressBar by lazy { activity.find<ProgressBar>(R.id.roadProgressBar) }
+
 
     private val nameInputDialog by lazy {
         NameInputDialog(activity, activity.layoutInflater, this::onNameEntered)
@@ -83,6 +86,15 @@ class CustomActionBar(private val activity: AppCompatActivity) {
         if (nameViewModel.name.value == null) {
             nameInputDialog.show()
         }
+
+        markersViewModel
+                .trackedMarker
+                .observeNotNull(activity) {
+                    it.ifPresentOrElse(
+                            { roadProgressBar.visibility = View.VISIBLE },
+                            { roadProgressBar.visibility = View.INVISIBLE }
+                    )
+                }
 
         nameView.onClick { nameInputDialog.show() }
         cancelTrackButton.onClick { cancelTracking() }

@@ -4,6 +4,7 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
@@ -30,6 +31,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.LocationSender
+import pl.polsl.student.personalnavigation.model.TrackedMarker
 import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
 
@@ -61,7 +63,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     //Depends on `mapView` - use only after layout inflation
     private val markersFactory: OverlayMarkersFactory by lazy {
-        DefaultOverlayMarkersFactory(this, mapView, this::onMarkerLongPressed)
+        val trackedMarker: TrackedMarker by inject()
+        DefaultOverlayMarkersFactory(this, mapView, trackedMarker, this::onMarkerLongPressed)
     }
 
     private val map by lazy {
@@ -69,10 +72,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 mapView,
                 markersFactory
         )
-    }
-
-    private val nameInputDialog by lazy {
-        NameInputDialog(this, layoutInflater, this::onNameEntered)
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,15 +152,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     )
                 }
 
-        markersViewModel
-                .trackedMarker
-                .observeNotNull(this) {
-                    it.ifPresentOrElse(
-                            { markersFactory.setTrackedId(it.id) },
-                            markersFactory::resetTrackedId
-                    )
-                }
-
         actionBar = CustomActionBar(this)
     }
 
@@ -211,9 +201,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         postLocation()
     }
 
-    private fun showNameDialog() {
-        nameInputDialog.show()
-    }
 
     private fun updateLocation(location: Location) {
             currentLocation = Optional.of(location)
@@ -228,15 +215,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
     }
 
-    private fun onNameEntered(name: String) {
-        try {
-            nameViewModel.setName(name)
-        } catch (e: Exception) {
-            toast(e.message.toString())
-        }
-    }
-
     private fun onMarkerLongPressed(marker: CustomMarker) {
+        marker.setIcon(
+                ResourcesCompat.getDrawable(this.resources, R.drawable.marker_cyan, null)!!
+        )
+        mapView.invalidate()
         markersViewModel.trackMarkerWithId(marker.model.id)
     }
 }
