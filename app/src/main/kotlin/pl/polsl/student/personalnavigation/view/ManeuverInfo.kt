@@ -10,8 +10,8 @@ import kotlin.math.roundToLong
 
 
 class ManeuverInfo(private val context: Context, private val road: Road) {
-    val currentNode = with (road.mNodes) {
-        getOrElse(1) { first() }
+    private val currentNode = with (road.mNodes) {
+        getOrElse(1) { firstOrNull() }
     }
 
     fun icon(): Drawable {
@@ -32,7 +32,7 @@ class ManeuverInfo(private val context: Context, private val road: Road) {
         )
 
         val resId = iconMap
-                .filterKeys { currentNode.mManeuverType in it }
+                .filterKeys { currentNode?.mManeuverType in it }
                 .values
                 .firstOrNull() ?: R.drawable.ic_empty
 
@@ -40,7 +40,7 @@ class ManeuverInfo(private val context: Context, private val road: Road) {
     }
 
     fun instructions(): String {
-        return currentNode.mInstructions
+        return currentNode?.mInstructions ?: ""
     }
 
     fun totalLengthDurationText(): String {

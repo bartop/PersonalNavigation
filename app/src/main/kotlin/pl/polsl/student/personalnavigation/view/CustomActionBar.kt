@@ -1,6 +1,5 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.media.Image
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageButton
@@ -11,15 +10,11 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.koin.android.architecture.ext.getViewModel
-import org.osmdroid.bonuspack.routing.Road
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.util.observeNotNull
-import pl.polsl.student.personalnavigation.util.totalLengthDurationText
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
 import pl.polsl.student.personalnavigation.viewmodel.RoadViewModel
-import kotlin.math.roundToLong
-
 
 class CustomActionBar(private val activity: AppCompatActivity) {
 

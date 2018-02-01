@@ -5,12 +5,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
-import android.view.View
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.ToggleButton
 import com.github.kittinunf.result.failure
 import io.nlopez.smartlocation.SmartLocation
@@ -21,9 +17,7 @@ import kotterknife.bindView
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.error
 import org.jetbrains.anko.info
-import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.sdk25.coroutines.onTouch
-import org.jetbrains.anko.toast
 import org.koin.android.architecture.ext.getViewModel
 import org.koin.android.ext.android.inject
 import org.osmdroid.config.Configuration
@@ -163,7 +157,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                                     .postLocation(it, nameViewModel.name.value ?: "Noname")
                                     .thenAcceptOnUiThread(this) {
                                             it.failure {
-                                                toast(it.message.toString())
+                                                error("Cannot post location", it)
                                             }
                                             handler.postDelayed(this::postLocation, 500)
                                     }
