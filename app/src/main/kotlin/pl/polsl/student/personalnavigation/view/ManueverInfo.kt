@@ -3,12 +3,18 @@ package pl.polsl.student.personalnavigation.view
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.v4.content.res.ResourcesCompat
-import org.osmdroid.bonuspack.routing.RoadNode
+import org.osmdroid.bonuspack.routing.Road
 import pl.polsl.student.personalnavigation.R
+import pl.polsl.student.personalnavigation.util.totalLengthDurationText
+import kotlin.math.roundToLong
 
 
-class ManeuverIconProvider(private val context: Context) : (RoadNode) -> Drawable {
-    override fun invoke(node: RoadNode): Drawable {
+class ManeuverInfo(private val context: Context, private val road: Road) {
+    val currentNode = with (road.mNodes) {
+        getOrElse(1) { first() }
+    }
+
+    fun icon(): Drawable {
         val iconMap = mapOf(
                 0..0 to R.drawable.ic_empty,
                 1..1 to R.drawable.ic_continue,
@@ -26,10 +32,28 @@ class ManeuverIconProvider(private val context: Context) : (RoadNode) -> Drawabl
         )
 
         val resId = iconMap
-                .filterKeys { node.mManeuverType in it }
+                .filterKeys { currentNode.mManeuverType in it }
                 .values
                 .firstOrNull() ?: R.drawable.ic_empty
 
         return ResourcesCompat.getDrawable(context.resources, resId, null)!!
+    }
+
+    fun instructions(): String {
+        return currentNode.mInstructions
+    }
+
+    fun totalLengthDurationText(): String {
+        return road.totalLengthDurationText(context)
+    }
+
+    fun distanceText(): String {
+        val distance = road.mNodes.firstOrNull()?.mLength
+
+        return if (distance != null) {
+            "${(distance * 1000).roundToLong()}m"
+        } else {
+            ""
+        }
     }
 }

@@ -10,11 +10,14 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.toast
 import org.koin.android.architecture.ext.getViewModel
+import org.osmdroid.bonuspack.routing.Road
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.util.observeNotNull
+import pl.polsl.student.personalnavigation.util.totalLengthDurationText
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import pl.polsl.student.personalnavigation.viewmodel.NameViewModel
 import pl.polsl.student.personalnavigation.viewmodel.RoadViewModel
+import kotlin.math.roundToLong
 
 
 class CustomActionBar(private val activity: AppCompatActivity) {
@@ -23,11 +26,11 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val directionsLayout by lazy { activity.find<View>(R.id.directionsLayout) }
     private val directionTextView by lazy { activity.find<TextView>(R.id.directionTextView) }
     private val durationTextView by lazy { activity.find<TextView>(R.id.durationTextView) }
+    private val distanceTextView by lazy { activity.find<TextView>(R.id.distanceTextView) }
+
     private val nameView by lazy { activity.find<TextView>(R.id.nameTextView) }
     private val cancelTrackButton by lazy { activity.find<ImageButton>(R.id.cancelTrackButton) }
     private val maneuverImage by lazy { activity.find<ImageView>(R.id.maneuverImage) }
-
-
 
     private val nameInputDialog by lazy {
         NameInputDialog(activity, activity.layoutInflater, this::onNameEntered)
@@ -36,7 +39,6 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val nameViewModel by lazy { activity.getViewModel<NameViewModel>() }
     private val markersViewModel by lazy { activity.getViewModel<MarkersViewModel>() }
     private val roadViewModel by lazy { activity.getViewModel<RoadViewModel>() }
-    private val maneuverIconProvider = ManeuverIconProvider(activity)
 
     init {
         with (activity.supportActionBar!!) {
@@ -52,12 +54,18 @@ class CustomActionBar(private val activity: AppCompatActivity) {
                             {
                                 nameLayout.visibility = View.INVISIBLE
                                 directionsLayout.visibility = View.VISIBLE
-                                with (it.mNodes) {
-                                    val currentNode = getOrElse(1) { first() }
-                                    directionTextView.text = currentNode.mInstructions
-                                    maneuverImage.setImageDrawable(maneuverIconProvider(currentNode))
-                                }
-                                durationTextView.text = it.getLengthDurationText(activity, 0)
+
+                                val maneuverInfo = ManeuverInfo(activity, it)
+
+                                directionTextView.text = maneuverInfo.instructions()
+
+                                maneuverImage.setImageDrawable(
+                                        maneuverInfo.icon()
+                                )
+
+
+                                distanceTextView.text = maneuverInfo.distanceText()
+                                durationTextView.text = maneuverInfo.totalLengthDurationText()
 
                             },
                             {
@@ -76,10 +84,7 @@ class CustomActionBar(private val activity: AppCompatActivity) {
             nameInputDialog.show()
         }
 
-        nameView.onClick {
-            nameInputDialog.show()
-        }
-
+        nameView.onClick { nameInputDialog.show() }
         cancelTrackButton.onClick { cancelTracking() }
     }
 
@@ -94,5 +99,4 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private fun cancelTracking() {
         markersViewModel.resetTrackedMarker()
     }
-
 }

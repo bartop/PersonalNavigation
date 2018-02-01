@@ -38,37 +38,71 @@
             android:layout_centerHorizontal="true"
             android:padding="4dp"
             android:text="@string/your_name"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TextView
-            android:id="@+id/durationTextView"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/directionTextView"
-            android:layout_centerHorizontal="true"
-            android:padding="4dp"
-            android:text="@string/your_name"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold" />
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="false"
+                android:background="@drawable/ic_flag"
+                android:contentDescription="Destination"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/durationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:padding="4dp"
+                android:text="@string/your_name"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        </LinearLayout>
+
 
         <ImageButton
             android:id="@+id/cancelTrackButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             android:background="@android:drawable/ic_delete"
             android:contentDescription="Cancel tracking" />
 
-        <ImageView
-            android:id="@+id/maneuverImage"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:adjustViewBounds="false"
-            android:contentDescription="Next manuever" />
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/distanceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:layout_gravity="center"
+                android:textSize="12sp"
+                android:text="50m"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <ImageView
+                android:id="@+id/maneuverImage"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="false"
+                android:contentDescription="Next maneuver"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 </RelativeLayout>

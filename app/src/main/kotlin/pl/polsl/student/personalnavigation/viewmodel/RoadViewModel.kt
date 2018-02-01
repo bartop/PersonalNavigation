@@ -12,6 +12,8 @@ import pl.polsl.student.personalnavigation.model.AuthenticationService
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 import pl.polsl.student.personalnavigation.model.RoadProducer
 import pl.polsl.student.personalnavigation.model.TrackedMarker
+import pl.polsl.student.personalnavigation.util.calculateDuration
+import pl.polsl.student.personalnavigation.util.calculateLength
 import pl.polsl.student.personalnavigation.view.MarkersConsumer
 
 
@@ -60,7 +62,7 @@ class RoadViewModel(
         }
     }
 
-    fun updateRoad() {
+    private fun updateRoad() {
         trackedPosition
                 .ifPresentOrElse(
                         {
@@ -74,6 +76,8 @@ class RoadViewModel(
                                         )
                                         .thenAccept {
                                             if (trackedMarker.get().isPresent) {
+                                                it.calculateDuration()
+                                                it.calculateLength()
                                                 mutableRoad.postValue(Optional.of(it))
                                             }
                                         }
