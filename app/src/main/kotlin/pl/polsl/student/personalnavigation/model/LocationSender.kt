@@ -17,22 +17,19 @@ class LocationSender(
         private val authenticationService: AuthenticationService,
         private val executor: Executor
 ): AnkoLogger {
-    fun postLocation(location: Location, name: String): FutureResult<Unit> {
+    fun postLocation(marker: Marker): FutureResult<Unit> {
         return CompletableFuture.supplyAsync(
-                Supplier<Result<Unit, Exception>> { postLocationSynchronous(location, name) },
+                Supplier<Result<Unit, Exception>> { postLocationSynchronous(marker) },
                 executor
         )
     }
 
-    private fun postLocationSynchronous(location: Location, name: String): Result<Unit, Exception> {
+    private fun postLocationSynchronous(marker: Marker): Result<Unit, Exception> {
         return Result.of {
             Fuel
                     .post("$url/markers")
                     .jsonBody(
-                            DefaultMarker(
-                                    name = name,
-                                    position = Position.fromLocation(location)
-                            )
+                            marker
                     )
                     .header(authenticationService.authenticationHeaders())
                     .responseString { request, response, _ ->

@@ -18,8 +18,6 @@
 
         <ToggleButton
             android:id="@+id/trackButton"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -28,10 +26,25 @@
             android:checked="true"
             android:drawableTop="@android:drawable/ic_menu_mylocation"
             android:gravity="center"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:text=""
             android:textOff=""
             android:textOn=""
             android:textSize="0sp" />
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="16dp"
+            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="" />
+
 
 
     </RelativeLayout>
@@ -44,6 +57,5 @@
         android:layout_height="56dp"
         android:layout_gravity="start"
         app:menu="@menu/bottom_navigation_layout"/>
-
 
 </LinearLayout>

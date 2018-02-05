@@ -29,14 +29,13 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val maneuverImage by lazy { activity.find<ImageView>(R.id.maneuverImage) }
     private val roadProgressBar by lazy { activity.find<ProgressBar>(R.id.roadProgressBar) }
 
-
-    private val nameInputDialog by lazy {
-        NameInputDialog(activity, activity.layoutInflater, this::onNameEntered)
-    }
-
     private val nameViewModel by lazy { activity.getViewModel<NameViewModel>() }
     private val markersViewModel by lazy { activity.getViewModel<MarkersViewModel>() }
     private val roadViewModel by lazy { activity.getViewModel<RoadViewModel>() }
+
+    private val nameInputDialog by lazy {
+        NameInputDialog(activity, nameViewModel)
+    }
 
     init {
         with (activity.supportActionBar!!) {
@@ -93,14 +92,6 @@ class CustomActionBar(private val activity: AppCompatActivity) {
 
         nameView.onClick { nameInputDialog.show() }
         cancelTrackButton.onClick { cancelTracking() }
-    }
-
-    private fun onNameEntered(name: String) {
-        try {
-            nameViewModel.setName(name)
-        } catch (e: Exception) {
-            activity.toast(e.message.toString())
-        }
     }
 
     private fun cancelTracking() {

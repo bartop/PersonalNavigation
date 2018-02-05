@@ -24,8 +24,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import pl.polsl.student.personalnavigation.R
-import pl.polsl.student.personalnavigation.model.LocationSender
-import pl.polsl.student.personalnavigation.model.TrackedMarker
+import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
 
@@ -62,7 +61,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private val map by lazy {
-        Map(
+        MapManager(
                 mapView,
                 markersFactory
         )
@@ -154,12 +153,19 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .ifPresentOrElse(
                         {
                             locationSender
-                                    .postLocation(it, nameViewModel.name.value ?: "Noname")
+                                    .postLocation(
+                                            DefaultMarker(
+                                                    name = nameViewModel.name.value ?: "Noname",
+                                                    position = Position.fromLocation(it),
+                                                    gender = nameViewModel.gender.value ?: Gender.Female,
+                                                    skill = nameViewModel.skill.value ?: Skill.Low
+                                            )
+                                    )
                                     .thenAcceptOnUiThread(this) {
                                             it.failure {
                                                 error("Cannot post location", it)
                                             }
-                                            handler.postDelayed(this::postLocation, 500)
+                                            handler.postDelayed(this::postLocation, 2000)
                                     }
                         },
                         { handler.postDelayed(this::postLocation, 500) }

@@ -10,17 +10,38 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/your_name"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/your_name" />
 
     <EditText
         android:id="@+id/editTextDialogUserInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName">
+        android:inputType="textPersonName"
+        android:layout_marginBottom="16dp">
 
         <requestFocus />
 
     </EditText>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/gender"  />
+
+    <Spinner
+        android:id="@+id/genderSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/skill" />
+
+    <Spinner
+        android:id="@+id/skillSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

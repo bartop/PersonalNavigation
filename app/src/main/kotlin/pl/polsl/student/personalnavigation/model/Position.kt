@@ -3,9 +3,6 @@ package pl.polsl.student.personalnavigation.model
 import android.location.Location
 import org.osmdroid.util.GeoPoint
 
-/**
- * Created by Bartosz Miera on 2017-12-15.
- */
 class Position(
         val longitude: Double,
         val latitude: Double,

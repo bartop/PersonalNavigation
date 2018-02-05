@@ -10,7 +10,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
-class Map(
+class MapManager(
         private val map: MapView,
         private val overlayMarkersFactory: OverlayMarkersFactory
 ) : MarkersConsumer, MapEventsReceiver {
