@@ -210,10 +210,14 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun onMarkerLongPressed(marker: CustomMarker) {
-        marker.setIcon(
-                ResourcesCompat.getDrawable(this.resources, R.drawable.marker_cyan, null)!!
-        )
-        mapView.invalidate()
-        markersViewModel.trackMarkerWithId(marker.model.id)
+        val userId = userIdViewModel.userId.value
+
+        if (userId != null && marker.model.id != userId) {
+            marker.setIcon(
+                    ResourcesCompat.getDrawable(this.resources, R.drawable.marker_cyan, null)!!
+            )
+            mapView.invalidate()
+            markersViewModel.trackMarkerWithId(marker.model.id)
+        }
     }
 }

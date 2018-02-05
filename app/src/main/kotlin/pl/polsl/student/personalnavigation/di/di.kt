@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService
 
 
 val koinModule = applicationContext {
-    provide("serverUrl") { "http://192.168.192.133:8080" }
+    provide("serverUrl") { get<Context>().resources.getString(R.string.server_url) }
     provide {
         {
             val roadManager = MapQuestRoadManager(MapQuestApiKey)

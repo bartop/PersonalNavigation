@@ -1,7 +1,5 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.view.View
-import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.events.MapEventsReceiver
@@ -43,7 +41,7 @@ class Map(
     }
 
     override fun longPressHelper(p: GeoPoint?): Boolean {
-        return false;
+        return false
     }
 
     override fun singleTapConfirmedHelper(point: GeoPoint): Boolean {
