@@ -90,8 +90,12 @@ class CustomActionBar(private val activity: AppCompatActivity) {
                     )
                 }
 
-        nameView.onClick { nameInputDialog.show() }
+        nameView.onClick { showProfileDialog() }
         cancelTrackButton.onClick { cancelTracking() }
+    }
+
+    fun showProfileDialog() {
+        nameInputDialog.show()
     }
 
     private fun cancelTracking() {

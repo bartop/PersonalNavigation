@@ -76,6 +76,7 @@ class NameInputDialog(
         try {
             nameViewModel.setName(userInput.text.toString())
             nameViewModel.setGender(genderSpinner.selectedItem as Gender)
+            nameViewModel.setSkill(skillSpinner.selectedItem as Skill)
         } catch (e: Exception) {
             activity.toast(e.message.toString())
         }

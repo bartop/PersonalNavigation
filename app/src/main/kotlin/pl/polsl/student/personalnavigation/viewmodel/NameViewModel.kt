@@ -16,7 +16,7 @@ class NameViewModel(
 
     private val mutableName = MutableLiveData<String>()
     private val mutableGender = MutableLiveData<Gender>()
-    private val mutableExperience = MutableLiveData<Skill>()
+    private val mutableSkill = MutableLiveData<Skill>()
 
     init {
         if (sharedPreferences.contains(NAME_KEY)) {
@@ -24,14 +24,14 @@ class NameViewModel(
             mutableGender.value = Gender.valueOf(
                     sharedPreferences.getString(GENDER_KEY, Gender.Female.toString())
             )
-            mutableExperience.value = Skill.valueOf(
+            mutableSkill.value = Skill.valueOf(
                     sharedPreferences.getString(EXPERIENCE_KEY, Skill.Low.toString())
             )
         }
     }
 
     val name: LiveData<String> = mutableName
-    val skill: LiveData<Skill> = mutableExperience
+    val skill: LiveData<Skill> = mutableSkill
     val gender: LiveData<Gender> = mutableGender
 
     fun setName(name: String) {
@@ -55,13 +55,13 @@ class NameViewModel(
         mutableGender.value = gender
     }
 
-    fun setExperience(skill: Skill) {
+    fun setSkill(skill: Skill) {
         sharedPreferences
                 .edit()
                 .putString(EXPERIENCE_KEY, skill.toString())
                 .apply()
 
-        mutableExperience.value = skill
+        mutableSkill.value = skill
     }
 
 }

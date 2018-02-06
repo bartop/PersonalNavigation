@@ -1,11 +1,13 @@
 package pl.polsl.student.personalnavigation.view
 
+import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MotionEvent
 import android.widget.ToggleButton
 import com.github.kittinunf.result.failure
@@ -27,6 +29,9 @@ import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
+import android.view.MenuInflater
+import android.view.MenuItem
+
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
     private val handler = Handler()
@@ -182,6 +187,23 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
         startLocationUpdates()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.my_profile_menu_item ->
+                actionBar.showProfileDialog()
+            R.id.filters_menu_item ->
+                startActivity(Intent(this, FiltersSettingActivity::class.java))
+            else ->
+                    return false
+        }
+        return true
     }
 
     private fun startLocationUpdates() {

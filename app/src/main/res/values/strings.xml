@@ -13,4 +13,9 @@
     <string name="High">High</string>
     <string name="gender">Gender</string>
     <string name="skill">Skill</string>
+    <string name="select_one_gender">Select at least one gender!</string>
+    <string name="select_one_skill">Select at least one skill!</string>
+    <string name="my_profile">My profile</string>
+    <string name="filters">Filters</string>
+    <string name="search">Search</string>
 </resources>

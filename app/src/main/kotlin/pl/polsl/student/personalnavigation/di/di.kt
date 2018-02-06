@@ -30,8 +30,9 @@ val koinModule = applicationContext {
     provide { Executors.newScheduledThreadPool(8) as ScheduledExecutorService }
     provide { get<ScheduledExecutorService>() as Executor }
     provide { RoadProducer(get(), get()) }
+    provide { FilterDataRepository(get()) }
 
-    provide { BackendMarkersSource(get("serverUrl")) as MarkersSource }
+    provide { BackendMarkersSource(get("serverUrl"), get()) as MarkersSource }
     provide { BackendAuthenticationService(get(), get()) as AuthenticationService }
     provide {
         val context = get<Context>()
@@ -48,4 +49,5 @@ val koinModule = applicationContext {
     viewModel { NameViewModel(get()) }
     viewModel { RoadViewModel(get(), get()) }
     viewModel { MapViewModel(get()) }
+    viewModel { FilterDataViewModel(get()) }
 }

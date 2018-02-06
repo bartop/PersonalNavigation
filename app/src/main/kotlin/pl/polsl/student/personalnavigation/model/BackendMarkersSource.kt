@@ -5,7 +5,10 @@ import com.github.kittinunf.fuel.Fuel
 import org.osmdroid.util.BoundingBox
 import pl.polsl.student.personalnavigation.util.responseJsonOrThrow
 
-class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
+class BackendMarkersSource(
+        private val serverUrl: String,
+        private val filterDataRepository: FilterDataRepository
+) : MarkersSource {
 
     override fun getMarker(id: Long): IdentifiableMarker {
         return Fuel.get(
@@ -18,7 +21,10 @@ class BackendMarkersSource(private val serverUrl: String) : MarkersSource {
         return Fuel.get(
                         endpointUrl("/markers"),
                         listOf(
-                                "boundingBox" to jacksonObjectMapper().writeValueAsString(BackendBoundingBox(boundingBox))
+                                "boundingBox" to jacksonObjectMapper().
+                                        writeValueAsString(BackendBoundingBox(boundingBox)),
+                                "genders" to filterDataRepository.get().genders.joinToString(),
+                                "skills" to filterDataRepository.get().skills.joinToString()
                         )
                 )
                 .responseJsonOrThrow<Array<DefaultIdentifiableMarker>>()
