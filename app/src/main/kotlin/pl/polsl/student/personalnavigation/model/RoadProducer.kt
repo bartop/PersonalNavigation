@@ -14,9 +14,9 @@ class RoadProducer(
         private val roadManager: RoadManager
 ) {
 
-    fun roadBetween(start: GeoPoint, end: GeoPoint): CompletableFuture<Road> {
+    fun roadBetween(start: GeoPoint, end: GeoPoint, tag: Long): CompletableFuture<Pair<Long, Road>> {
         return CompletableFuture.supplyAsync(
-                Supplier{ roadManager.getRoad(ArrayList(listOf(start, end))) },
+                Supplier{ tag to roadManager.getRoad(ArrayList(listOf(start, end))) },
                 executor
         )
     }

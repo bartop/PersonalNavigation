@@ -114,7 +114,7 @@ class CustomActionBar(private val activity: AppCompatActivity) {
         }
     }
 
-    fun showProfileDialog() {
+    private fun showProfileDialog() {
         nameInputDialog.show()
     }
 

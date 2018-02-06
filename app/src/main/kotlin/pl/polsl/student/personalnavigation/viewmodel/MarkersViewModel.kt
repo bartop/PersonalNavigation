@@ -73,9 +73,22 @@ class MarkersViewModel(
 
             mutableMarkers.postValue(downloadedMarkers)
 
-            mutableTrackedMarker.postValue(
-                    downloadedTrackedMarker
-            )
+            synchronized(trackedMarkerModel) {
+                trackedMarkerModel.get().ifPresentOrElse(
+                        { trackedId ->
+                            if (downloadedTrackedMarker.map { it.id == trackedId}.orElse(false)) {
+                                mutableTrackedMarker.postValue(
+                                        downloadedTrackedMarker
+                                )
+                            } else {
+                                mutableTrackedMarker.postValue(Optional.empty())
+                            }
+                        },
+                        {
+                            mutableTrackedMarker.postValue(Optional.empty())
+                        }
+                )
+            }
         } catch (e: Exception) {
             mutableError.postValue(e)
         } finally {

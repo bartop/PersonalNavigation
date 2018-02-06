@@ -5,24 +5,32 @@ import java.util.concurrent.atomic.AtomicReference
 
 class TrackedMarker {
     private val listeners = mutableListOf<(Optional<Long>) -> Unit>()
-    private val id = AtomicReference(Optional.empty<Long>())
+    private var id = Optional.empty<Long>()
 
     fun set(id: Long) {
-        this.id.set(Optional.of(id))
-        notifyListeners()
+        synchronized(this) {
+            this.id = Optional.of(id)
+            notifyListeners()
+        }
     }
 
     fun reset() {
-        id.set(Optional.empty())
-        notifyListeners()
+        synchronized(this) {
+            id = Optional.empty()
+            notifyListeners()
+        }
     }
 
     fun get(): Optional<Long> {
-        return id.get()
+        synchronized(this) {
+            return id
+        }
     }
 
     fun addListener(callback: (Optional<Long>) -> Unit) {
-        listeners.add(callback)
+        synchronized(this) {
+            listeners.add(callback)
+        }
     }
 
     private fun notifyListeners() {

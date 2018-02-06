@@ -47,7 +47,7 @@ val koinModule = applicationContext {
     }
     provide { DefaultOverlayMarkersFactory(get(), get()) as OverlayMarkersFactory }
     provide { LocationSender(get("serverUrl"), get(), get()) }
-    provide { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get(), get()) }
+    provide { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(4.0f), get(), get()) }
     provide { UserIdViewModel(get(), get()) }
     provide { NameViewModel(get()) }
     provide { RoadViewModel(get(), get()) }

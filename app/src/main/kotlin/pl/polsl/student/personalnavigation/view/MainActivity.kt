@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         MapManager(
                 mapView,
                 markersFactory,
-                this::onMarkerLongPressed
+                this::selectMarker
         )
     }
 
@@ -223,15 +223,16 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
     }
 
-    private fun onMarkerLongPressed(marker: CustomMarker) {
+    private fun selectMarker(marker: CustomMarker) {
         val userId = userIdViewModel.userId.value
 
         if (userId != null && marker.model.id != userId) {
             marker.setIcon(
                     ResourcesCompat.getDrawable(this.resources, R.drawable.marker_cyan, null)!!
             )
-            mapView.invalidate()
+            roadViewModel.resetTrackedPosition()
             markersViewModel.trackMarkerWithId(marker.model.id)
+            mapView.invalidate()
         }
     }
 }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f5f5f5"
+    android:background="#eeeeee"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="pl.polsl.student.personalnavigation.view.SearchActivity"
     tools:showIn="@layout/activity_search">
