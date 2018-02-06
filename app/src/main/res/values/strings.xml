@@ -17,6 +17,6 @@
     <string name="select_one_skill">Select at least one skill!</string>
     <string name="my_profile">My profile</string>
     <string name="filters">Filters</string>
-    <string name="search">Search</string>
-    <string name="title_activity_search">Search</string>
+    <string name="people_nearby">People nearby</string>
+    <string name="title_activity_search">People nearby</string>
 </resources>

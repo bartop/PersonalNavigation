@@ -31,6 +31,8 @@ import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Button
+import org.jetbrains.anko.sdk25.coroutines.onClick
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
@@ -127,7 +129,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         )
 
         trackButton.setOnClickListener {
-            if (trackButton.isChecked) {
+            mapViewModel.setTrackMyself(trackButton.isChecked)
+        }
+
+        mapViewModel.trackMyself.observeNotNull(this) {
+            trackButton.isChecked = it
+            if (it) {
                 currentLocation.ifPresent {
                     mapViewModel.setCenter(GeoPoint(it))
                 }
@@ -137,7 +144,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         mapView.onTouch {
             _, event ->
             if (event.action == MotionEvent.ACTION_MOVE) {
-                trackButton.isChecked = false
+                mapViewModel.setTrackMyself(false)
             }
         }
 
@@ -151,6 +158,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }
 
         actionBar = CustomActionBar(this)
+
+        findViewById<Button>(R.id.searchButton).onClick { startSearchActivity() }
     }
 
     private fun postLocation() {
@@ -197,7 +206,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.search_menu_item ->
-                startActivity(Intent(this, SearchActivity::class.java))
+                startSearchActivity()
             R.id.my_profile_menu_item ->
                 actionBar.showProfileDialog()
             R.id.filters_menu_item ->
@@ -206,6 +215,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     return false
         }
         return true
+    }
+
+    private fun startSearchActivity() {
+        startActivity(Intent(this, SearchActivity::class.java))
     }
 
     private fun startLocationUpdates() {
@@ -225,7 +238,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         postLocation()
     }
 
-
     private fun updateLocation(location: Location) {
             currentLocation = Optional.of(location)
             if (location.hasBearing()) {
@@ -234,7 +246,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             } else {
                 markersFactory.resetUserBearing()
             }
-            if (trackButton.isChecked) {
+            if (mapViewModel.trackMyself.value == true) {
                 mapViewModel.setCenter(GeoPoint(location))
             }
     }

@@ -44,12 +44,11 @@ val koinModule = applicationContext {
                 )
     }
     provide { LocationSender(get("serverUrl"), get(), get()) }
-    viewModel { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get(), get()) }
-    viewModel { UserIdViewModel(get(), get()) }
-    viewModel { NameViewModel(get()) }
-    viewModel { RoadViewModel(get(), get()) }
-    viewModel { MapViewModel(get()) }
-    viewModel { FilterDataViewModel(get()) }
-    viewModel { SearchedMarkersViewModel(get(), get()) }
-
+    provide { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get(), get()) }
+    provide { UserIdViewModel(get(), get()) }
+    provide { NameViewModel(get()) }
+    provide { RoadViewModel(get(), get()) }
+    provide { MapViewModel(get()) }
+    provide { FilterDataViewModel(get()) }
+    provide { SearchedMarkersViewModel(get(), get()) }
 }

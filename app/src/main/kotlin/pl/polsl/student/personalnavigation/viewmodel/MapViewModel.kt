@@ -15,11 +15,12 @@ class MapViewModel(private val sharedPreferences: SharedPreferences): ViewModel(
     private val CENTER_LATITUDE_KEY = "center-latitude"
     private val CENTER_LONGITUDE_KEY = "center-latitude"
 
-
     private val mutableCenter: MutableLiveData<GeoPoint> = MutableLiveData()
     private val mutableZoom: MutableLiveData<Int> = MutableLiveData()
+    private val mutableTrackMyself: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
+        mutableTrackMyself.value = true
         mutableZoom.value = sharedPreferences.getInt(ZOOM_KEY, 16)
 
         val latitude = sharedPreferences.getString(CENTER_LATITUDE_KEY, "55.0").toDouble()
@@ -50,6 +51,11 @@ class MapViewModel(private val sharedPreferences: SharedPreferences): ViewModel(
         }
     }
 
+    fun setTrackMyself(track: Boolean) {
+        mutableTrackMyself.value = track
+    }
+
     val center: LiveData<GeoPoint> = mutableCenter
     val zoom: LiveData<Int> = mutableZoom
+    val trackMyself: LiveData<Boolean> = mutableTrackMyself
 }

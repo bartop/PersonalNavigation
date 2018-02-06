@@ -40,7 +40,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_margin="16dp"
-            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:drawableLeft="@android:drawable/ic_menu_sort_by_size"
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:text="" />
