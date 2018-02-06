@@ -88,7 +88,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         with(markersViewModel) {
             markers.observeNotNull(this@MainActivity) {
-                map.consume(it)
+                try {
+                    map.consume(it)
+                } catch (e: OutOfMemoryError) {
+                    showToast(R.string.cannot_redraw)
+                    error("Cannot redraw!", e)
+                }
             }
 
             userMarker.observeNotNull(this@MainActivity) {
@@ -211,11 +216,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private fun updateLocation(location: Location) {
             currentLocation = Optional.of(location)
-            if (location.hasBearing()) {
-                markersFactory.setUserBearing(location.bearing)
-            } else {
-                markersFactory.resetUserBearing()
-            }
+
             if (mapViewModel.trackMyself.value == true) {
                 mapViewModel.setCenter(GeoPoint(location))
             }
@@ -230,21 +231,24 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             )
             roadViewModel.resetTrackedPosition()
             markersViewModel.trackMarkerWithId(marker.model.id)
-            mapView.invalidate()
         }
     }
 
     private fun handleConnectionError(e: Exception, loggedReason: String) {
+        showToast(R.string.connection_problem)
+        error(loggedReason, e)
+    }
+
+    private fun showToast(id: Int) {
         try {
             if (currentToast?.view?.isShown == true) {
-                currentToast?.setText(R.string.connection_problem)
+                currentToast?.setText(id)
                 currentToast?.show()
             } else {
-                currentToast = longToast(R.string.connection_problem)
+                currentToast = toast(id)
             }
         } catch (_: Exception) {
-            currentToast = longToast(R.string.connection_problem)
+            currentToast = toast(id)
         }
-        error(loggedReason, e)
     }
 }

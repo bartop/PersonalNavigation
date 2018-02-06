@@ -10,7 +10,4 @@ interface OverlayMarkersFactory {
             marker: IdentifiableMarker,
             onPressListener: (CustomMarker) -> Unit
     ): org.osmdroid.views.overlay.Marker
-
-    fun setUserBearing(bearing: Float)
-    fun resetUserBearing()
 }

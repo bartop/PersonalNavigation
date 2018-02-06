@@ -19,4 +19,5 @@
     <string name="people_nearby">People nearby</string>
     <string name="title_activity_search">People nearby</string>
     <string name="connection_problem">Cannot communicate with the server! Check your connection…</string>
+    <string name="cannot_redraw">Cannot redraw! Please try to zoom in.</string>
 </resources>

@@ -1,5 +1,6 @@
 package pl.polsl.student.personalnavigation.view
 
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.events.MapEventsReceiver
@@ -14,21 +15,27 @@ class MapManager(
         private val map: MapView,
         private val overlayMarkersFactory: OverlayMarkersFactory,
         private val onPressListener: (CustomMarker) -> Unit
-) : MarkersConsumer, MapEventsReceiver {
+) : MarkersConsumer {
     private val markersFolder = FolderOverlay()
     private val roadFolder = FolderOverlay()
+    private var clusterer = CustomMarkerClusterer(map.context)
 
     init {
-        map.overlays.addAll(listOf(roadFolder, markersFolder, MapEventsOverlay(this)))
+        map.overlays.addAll(listOf(roadFolder, markersFolder))
     }
 
     override fun consume(markers: Iterable<IdentifiableMarker>) {
-        markersFolder.items.forEach { (it as? Marker)?.closeInfoWindow() }
-        markersFolder.items.clear()
-        markers
-                .map { overlayMarkersFactory.create(map, it, onPressListener) }
-                .forEach { markersFolder.add(it) }
-        map.invalidate()
+        try {
+            clusterer.items.forEach { it.closeInfoWindow() }
+            markersFolder.items.clear()
+            clusterer = CustomMarkerClusterer(map.context)
+            markers
+                    .map { overlayMarkersFactory.create(map, it, onPressListener) }
+                    .forEach { clusterer.add(it) }
+            markersFolder.add(clusterer)
+        } finally {
+            map.invalidate()
+        }
     }
 
     fun showRoad(road: Road) {
@@ -39,20 +46,6 @@ class MapManager(
 
     fun clearRoad() {
         roadFolder.items.clear()
-    }
-
-    override fun longPressHelper(p: GeoPoint?): Boolean {
-        return false
-    }
-
-    override fun singleTapConfirmedHelper(point: GeoPoint): Boolean {
-        val closest = markersFolder
-                .items
-                .mapNotNull { (it as? CustomMarker) }
-                .minBy { point.distanceTo(it.position) }
-
-        closest?.onPressListener?.invoke(closest)
-
-        return closest != null
+        map.invalidate()
     }
 }

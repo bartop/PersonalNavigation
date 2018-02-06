@@ -20,12 +20,9 @@ class CustomMarker(
         setIcon(icon)
         position  = model.position.toGeoPoint()
         title = model.name
-        setOnMarkerClickListener { _, _ ->
-            onPressListener(this)
-            true
-        }
         infoWindow = CustomInfoWindow(mapView)
         showInfoWindow()
+        setOnMarkerClickListener { _, _ -> onPressListener(this) == Unit }
     }
 
     override fun onLongPress(event: MotionEvent?, mapView: MapView?): Boolean {
