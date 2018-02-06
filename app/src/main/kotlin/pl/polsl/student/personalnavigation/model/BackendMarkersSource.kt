@@ -7,6 +7,7 @@ import pl.polsl.student.personalnavigation.util.responseJsonOrThrow
 
 class BackendMarkersSource(
         private val serverUrl: String,
+        private val authenticationService: AuthenticationService,
         private val filterDataRepository: FilterDataRepository
 ) : MarkersSource {
 
@@ -18,7 +19,8 @@ class BackendMarkersSource(
     }
 
     override fun getMarkersIn(boundingBox: BoundingBox): Set<IdentifiableMarker> {
-        return Fuel.get(
+        return Fuel
+                .get(
                         endpointUrl("/markers"),
                         listOf(
                                 "boundingBox" to jacksonObjectMapper().
@@ -27,8 +29,24 @@ class BackendMarkersSource(
                                 "skills" to filterDataRepository.get().skills.joinToString()
                         )
                 )
+                .header(authenticationService.authenticationHeaders())
                 .responseJsonOrThrow<Array<DefaultIdentifiableMarker>>()
                 .toSet()
+    }
+
+    override fun getFilteredMarkers(limit: Int): List<DistanceMarker> {
+        return Fuel
+                .get(
+                    endpointUrl("/markers/sorted"),
+                    listOf(
+                            "limit" to limit.toString(),
+                            "genders" to filterDataRepository.get().genders.joinToString(),
+                            "skills" to filterDataRepository.get().skills.joinToString()
+                    )
+                )
+                .header(authenticationService.authenticationHeaders())
+                .responseJsonOrThrow<Array<DistanceMarker>>()
+                .toList()
     }
 
     private fun endpointUrl(uri: String): String {

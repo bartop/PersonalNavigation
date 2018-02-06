@@ -18,4 +18,5 @@
     <string name="my_profile">My profile</string>
     <string name="filters">Filters</string>
     <string name="search">Search</string>
+    <string name="title_activity_search">Search</string>
 </resources>

@@ -31,7 +31,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.FiltersSettingActivity"></activity>
+        <activity android:name=".view.FiltersSettingActivity" />
+        <activity
+            android:name=".view.SearchActivity"
+            android:label="@string/title_activity_search"
+            android:parentActivityName=".view.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.polsl.student.personalnavigation.view.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

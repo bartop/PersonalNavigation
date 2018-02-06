@@ -196,6 +196,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.search_menu_item ->
+                startActivity(Intent(this, SearchActivity::class.java))
             R.id.my_profile_menu_item ->
                 actionBar.showProfileDialog()
             R.id.filters_menu_item ->
