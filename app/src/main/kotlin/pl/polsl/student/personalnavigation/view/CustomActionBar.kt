@@ -1,13 +1,11 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.toast
 import org.koin.android.architecture.ext.getViewModel
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.util.observeNotNull

@@ -63,17 +63,30 @@
                 </LinearLayout>
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/markerDistanceTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+            <RelativeLayout
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_below="@id/genderImageView"
-                android:text="100 m" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
+                <TextView
+                    android:id="@+id/markerDistanceTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="100 m"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textSize="12sp" />
 
+                <ImageButton
+                    android:id="@+id/markerDataTrackButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/markerDistanceTextView"
+                    android:layout_centerHorizontal="true"
+                    app:srcCompat="@drawable/ic_arrived" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 

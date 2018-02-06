@@ -7,7 +7,10 @@ import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.DistanceMarker
 
 
-class MarkersRecyclerViewAdapter(private val onClick: (DistanceMarker) -> Unit): RecyclerView.Adapter<MarkerDataViewHolder>() {
+class MarkersRecyclerViewAdapter(
+        private val show: (DistanceMarker) -> Unit,
+        private val track: (DistanceMarker) -> Unit
+): RecyclerView.Adapter<MarkerDataViewHolder>() {
     var markers: List<DistanceMarker> = emptyList()
         set(value) {
             field = value
@@ -20,7 +23,7 @@ class MarkersRecyclerViewAdapter(private val onClick: (DistanceMarker) -> Unit):
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MarkerDataViewHolder {
         val view = parent.context.layoutInflater.inflate(R.layout.marker_data_layout, parent, false)
-        return MarkerDataViewHolder(view, onClick)
+        return MarkerDataViewHolder(view, show, track)
     }
 
     override fun getItemCount(): Int = markers.size

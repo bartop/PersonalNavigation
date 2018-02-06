@@ -11,25 +11,32 @@ import kotterknife.bindView
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.koin.android.architecture.ext.getViewModel
+import org.koin.android.ext.android.inject
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.DistanceMarker
+import pl.polsl.student.personalnavigation.model.TrackedMarker
 import pl.polsl.student.personalnavigation.util.observeNotNull
 import pl.polsl.student.personalnavigation.viewmodel.MapViewModel
+import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import pl.polsl.student.personalnavigation.viewmodel.SearchedMarkersViewModel
 
 class SearchActivity : AppCompatActivity() {
 
     private val recyclerView by bindView<RecyclerView>(R.id.markersRecyclerView)
     private val recyclerAdapter by lazy {
-        MarkersRecyclerViewAdapter(this::onMarkerClicked)
+        MarkersRecyclerViewAdapter(this::showMarker, this::trackMarker)
+    }
+
+    private val searchedMarkersViewModel by lazy {
+        getViewModel<SearchedMarkersViewModel>()
+    }
+    
+    private val mapViewModel by lazy {
+        getViewModel<MapViewModel>()
     }
 
     private val markersViewModel by lazy {
-        getViewModel<SearchedMarkersViewModel>()
-    }
-
-    private val mapViewModel by lazy {
-        getViewModel<MapViewModel>()
+        getViewModel<MarkersViewModel>()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,23 +53,31 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = recyclerAdapter
 
-        markersViewModel
+        searchedMarkersViewModel
                 .markers
                 .observeNotNull(this) {
                     recyclerAdapter.markers = it
                 }
 
-        markersViewModel.startUpdates()
+        searchedMarkersViewModel.startUpdates()
     }
 
     override fun onDestroy() {
-        markersViewModel.stopUpdates()
+        searchedMarkersViewModel.stopUpdates()
         super.onDestroy()
     }
 
-    private fun onMarkerClicked(marker: DistanceMarker) {
+    private fun showMarker(marker: DistanceMarker) {
         mapViewModel.setTrackMyself(false)
         mapViewModel.setCenter(marker.position.toGeoPoint())
+        this.finish()
+    }
+
+    private fun trackMarker(marker: DistanceMarker) {
+        mapViewModel.setTrackMyself(false)
+        mapViewModel.setCenter(marker.position.toGeoPoint())
+        markersViewModel.trackMarkerWithId(marker.id)
+
         this.finish()
     }
 }

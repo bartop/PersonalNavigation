@@ -2,6 +2,7 @@ package pl.polsl.student.personalnavigation.view
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -14,7 +15,8 @@ import kotlin.math.roundToLong
 
 class MarkerDataViewHolder(
         itemView: View,
-        onClick: (DistanceMarker) -> Unit
+        show: (DistanceMarker) -> Unit,
+        track: (DistanceMarker) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
     private val nameTextView = itemView.findViewById<TextView>(R.id.markerDataNameTextView)
     private val distanceTextView = itemView.findViewById<TextView>(R.id.markerDistanceTextView)
@@ -32,8 +34,14 @@ class MarkerDataViewHolder(
 
     init {
         itemView.onClick {
-            marker?.apply(onClick)
+            marker?.apply(show)
         }
+
+        itemView
+                .findViewById<ImageButton>(R.id.markerDataTrackButton)
+                .onClick {
+                    marker?.apply(track)
+                }
     }
 
     var marker: DistanceMarker? = null

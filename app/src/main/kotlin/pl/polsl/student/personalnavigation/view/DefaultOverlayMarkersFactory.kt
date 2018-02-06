@@ -8,6 +8,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.AuthenticationService
+import pl.polsl.student.personalnavigation.model.Gender
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 import pl.polsl.student.personalnavigation.model.TrackedMarker
 
@@ -56,6 +57,8 @@ class DefaultOverlayMarkersFactory(
                         .orElse(R.drawable.marker_green)
             trackedMarker.get().map { marker.id == it }.orElse(false) ->
                     R.drawable.marker_cyan
+            marker.gender == Gender.Female ->
+                    R.drawable.marker_pink
             else ->
                     R.drawable.marker_blue
         }
