@@ -8,13 +8,14 @@ import com.yanzhenjie.permission.Permission
 import com.yanzhenjie.permission.SettingService
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.okButton
+import org.jetbrains.anko.startActivity
 import pl.polsl.student.personalnavigation.R
 
 class PermissionCheckActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_permission_check)
+        setContentView(R.layout.activity_permission_check)
 
         AndPermission
                 .with(this)
@@ -49,7 +50,7 @@ class PermissionCheckActivity : AppCompatActivity() {
     private fun onGranted(permissions: List<String>) {
         if (permissions.contains(Permission.ACCESS_FINE_LOCATION)) {
             finish()
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity<MainActivity>()
         }
     }
 }

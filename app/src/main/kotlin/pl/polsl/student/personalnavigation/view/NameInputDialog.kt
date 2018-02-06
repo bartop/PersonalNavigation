@@ -36,8 +36,8 @@ class NameInputDialog(
         genderSpinner.adapter = TranslatedEnumSpinnerAdapter<Gender>(
                 activity,
                 mapOf(
-                        R.string.Female to Gender.Female,
-                        R.string.Male to Gender.Male
+                        R.string.female to Gender.Female,
+                        R.string.male to Gender.Male
                 ),
                 { Gender.valueOf(it) }
         )
@@ -45,9 +45,9 @@ class NameInputDialog(
         skillSpinner.adapter = TranslatedEnumSpinnerAdapter<Skill>(
                 activity,
                 mapOf(
-                        R.string.Low to Skill.Low,
-                        R.string.Medium to Skill.Medium,
-                        R.string.High to Skill.High
+                        R.string.low_skill to Skill.Low,
+                        R.string.medium_skill to Skill.Medium,
+                        R.string.high_skill to Skill.High
                 ),
                 { Skill.valueOf(it) }
         )

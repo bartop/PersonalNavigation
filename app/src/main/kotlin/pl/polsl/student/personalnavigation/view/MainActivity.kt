@@ -14,9 +14,6 @@ import io.nlopez.smartlocation.location.config.LocationParams
 import io.nlopez.smartlocation.location.providers.LocationManagerProvider
 import java8.util.Optional
 import kotterknife.bindView
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.error
-import org.jetbrains.anko.info
 import org.jetbrains.anko.sdk25.coroutines.onTouch
 import org.koin.android.architecture.ext.getViewModel
 import org.koin.android.ext.android.inject
@@ -28,8 +25,9 @@ import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
 import android.widget.Button
+import android.widget.Toast
+import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import org.jetbrains.anko.startActivity
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
@@ -57,6 +55,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 )
     }
     private var currentLocation = Optional.empty<Location>()
+    private var currentToast: Toast? = null
 
     //Depends on `mapView` - use only after layout inflation
     private val markersFactory: OverlayMarkersFactory by inject()
@@ -104,7 +103,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
 
             error.observeNotNull(this@MainActivity) {
-                error("Cannot download markers!", it)
+                handleConnectionError(it,"Cannot download markers!")
             }
         }
 
@@ -168,7 +167,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                                     )
                                     .thenAcceptOnUiThread(this) {
                                             it.failure {
-                                                error("Cannot post location", it)
+                                                handleConnectionError(it,"Cannot post location!")
                                             }
                                             handler.postDelayed(this::postLocation, 2000)
                                     }
@@ -213,7 +212,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private fun updateLocation(location: Location) {
             currentLocation = Optional.of(location)
             if (location.hasBearing()) {
-                info("Setting bearing ${location.bearing}")
                 markersFactory.setUserBearing(location.bearing)
             } else {
                 markersFactory.resetUserBearing()
@@ -234,5 +232,19 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             markersViewModel.trackMarkerWithId(marker.model.id)
             mapView.invalidate()
         }
+    }
+
+    private fun handleConnectionError(e: Exception, loggedReason: String) {
+        try {
+            if (currentToast?.view?.isShown == true) {
+                currentToast?.setText(R.string.connection_problem)
+                currentToast?.show()
+            } else {
+                currentToast = longToast(R.string.connection_problem)
+            }
+        } catch (_: Exception) {
+            currentToast = longToast(R.string.connection_problem)
+        }
+        error(loggedReason, e)
     }
 }

@@ -24,14 +24,14 @@
             android:id="@+id/femaleCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Female" />
+            android:text="@string/female" />
 
         <CheckBox
             android:id="@+id/maleCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="@string/Male" />
+            android:text="@string/male" />
 
         <TextView
             android:id="@+id/textView3"
@@ -43,20 +43,20 @@
             android:id="@+id/lowCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Low" />
+            android:text="@string/low_skill" />
 
         <CheckBox
             android:id="@+id/mediumCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Medium" />
+            android:text="@string/medium_skill" />
 
         <CheckBox
             android:id="@+id/highCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:text="@string/High" />
+            android:text="@string/high_skill" />
     </LinearLayout>
 
 </RelativeLayout>
