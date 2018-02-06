@@ -6,9 +6,9 @@
     <string name="female">Female</string>
     <string name="male">Male</string>
 
-    <string name="low_skill">Low</string>
-    <string name="medium_skill">Medium</string>
-    <string name="high_skill">High</string>
+    <string name="low_skill">Beginner</string>
+    <string name="medium_skill">Intermediate</string>
+    <string name="high_skill">Advanced</string>
 
     <string name="gender">Gender</string>
     <string name="skill">Skill</string>
