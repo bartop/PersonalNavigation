@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.support.v4.content.res.ResourcesCompat
 import java8.util.Optional
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.AuthenticationService
 import pl.polsl.student.personalnavigation.model.IdentifiableMarker
@@ -12,29 +13,26 @@ import pl.polsl.student.personalnavigation.model.TrackedMarker
 
 
 class DefaultOverlayMarkersFactory(
-        private val context: Context,
-        private val mapView: MapView,
         private val trackedMarker: TrackedMarker,
-        private val onLongPressListener: (CustomMarker) -> Unit
+        private val authenticationService: AuthenticationService
 ): OverlayMarkersFactory {
-    private var userId: Optional<Long> = Optional.empty()
     private var bearing = Optional.empty<Float>()
 
-    override fun setUserId(userId: Long) {
-        this.userId = Optional.of(userId)
-    }
-
-    override fun create(marker: IdentifiableMarker): org.osmdroid.views.overlay.Marker {
+    override fun create(
+            mapView: MapView,
+            marker: IdentifiableMarker,
+            onPressListener: (CustomMarker) -> Unit
+    ): Marker {
         val displayableMarker = CustomMarker(
                 mapView,
-                context,
-                icon(marker),
+                mapView.context,
+                icon(mapView.context, marker),
                 marker,
-                onLongPressListener
+                onPressListener
         )
 
         bearing.map {
-            if (userId.map { id -> marker.id == id }.orElse(false)) {
+            if (authenticationService.authentication().id == marker.id) {
                 displayableMarker.rotation = -45.0f + it
             }
         }
@@ -50,9 +48,9 @@ class DefaultOverlayMarkersFactory(
         this.bearing = Optional.empty()
     }
 
-    private fun icon(marker: IdentifiableMarker): Drawable {
+    private fun icon(context: Context, marker: IdentifiableMarker): Drawable {
         val iconId = when {
-            userId.map { marker.id == it }.orElse(false) ->
+            authenticationService.authentication().id == marker.id ->
                 bearing
                         .map { R.drawable.navigation_arrow }
                         .orElse(R.drawable.marker_green)

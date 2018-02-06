@@ -1,13 +1,12 @@
 package pl.polsl.student.personalnavigation.view
 
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import org.koin.android.architecture.ext.getViewModel
 import pl.polsl.student.personalnavigation.R
@@ -23,6 +22,8 @@ class CustomActionBar(private val activity: AppCompatActivity) {
     private val directionTextView by lazy { activity.find<TextView>(R.id.directionTextView) }
     private val durationTextView by lazy { activity.find<TextView>(R.id.durationTextView) }
     private val distanceTextView by lazy { activity.find<TextView>(R.id.distanceTextView) }
+    private val menuButton by lazy { activity.find<ImageButton>(R.id.menuButton) }
+
 
     private val nameView by lazy { activity.find<TextView>(R.id.nameTextView) }
     private val cancelTrackButton by lazy { activity.find<ImageButton>(R.id.cancelTrackButton) }
@@ -92,6 +93,25 @@ class CustomActionBar(private val activity: AppCompatActivity) {
 
         nameView.onClick { showProfileDialog() }
         cancelTrackButton.onClick { cancelTracking() }
+
+        menuButton.onClick {
+            val popup = PopupMenu(activity, menuButton)
+
+            // This activity implements OnMenuItemClickListener
+            popup.setOnMenuItemClickListener{
+                when (it.itemId) {
+                    R.id.search_menu_item ->
+                        activity.startActivity<SearchActivity>()
+                    R.id.my_profile_menu_item ->
+                        showProfileDialog()
+                    R.id.filters_menu_item ->
+                        activity.startActivity<FiltersSettingActivity>()
+                }
+                true
+            }
+            popup.inflate(R.menu.options_menu)
+            popup.show()
+        }
     }
 
     fun showProfileDialog() {

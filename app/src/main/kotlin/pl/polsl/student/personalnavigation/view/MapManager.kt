@@ -12,7 +12,8 @@ import pl.polsl.student.personalnavigation.model.IdentifiableMarker
 
 class MapManager(
         private val map: MapView,
-        private val overlayMarkersFactory: OverlayMarkersFactory
+        private val overlayMarkersFactory: OverlayMarkersFactory,
+        private val onPressListener: (CustomMarker) -> Unit
 ) : MarkersConsumer, MapEventsReceiver {
     private val markersFolder = FolderOverlay()
     private val roadFolder = FolderOverlay()
@@ -25,7 +26,7 @@ class MapManager(
         markersFolder.items.forEach { (it as? Marker)?.closeInfoWindow() }
         markersFolder.items.clear()
         markers
-                .map(overlayMarkersFactory::create)
+                .map { overlayMarkersFactory.create(map, it, onPressListener) }
                 .forEach { markersFolder.add(it) }
         map.invalidate()
     }

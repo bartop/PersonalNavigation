@@ -1,13 +1,11 @@
 package pl.polsl.student.personalnavigation.view
 
-import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
 import android.view.MotionEvent
 import android.widget.ToggleButton
 import com.github.kittinunf.result.failure
@@ -29,10 +27,9 @@ import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.viewmodel.*
 import pl.polsl.student.personalnavigation.util.*
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.widget.Button
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.startActivity
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
@@ -62,15 +59,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private var currentLocation = Optional.empty<Location>()
 
     //Depends on `mapView` - use only after layout inflation
-    private val markersFactory: OverlayMarkersFactory by lazy {
-        val trackedMarker: TrackedMarker by inject()
-        DefaultOverlayMarkersFactory(this, mapView, trackedMarker, this::onMarkerLongPressed)
-    }
+    private val markersFactory: OverlayMarkersFactory by inject()
 
     private val map by lazy {
         MapManager(
                 mapView,
-                markersFactory
+                markersFactory,
+                this::onMarkerLongPressed
         )
     }
 
@@ -111,10 +106,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             error.observeNotNull(this@MainActivity) {
                 error("Cannot download markers!", it)
             }
-        }
-
-        userIdViewModel.userId.observeNotNull(this) {
-            markersFactory.setUserId(it)
         }
 
         mapView.setMapListener(
@@ -198,27 +189,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         startLocationUpdates()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.search_menu_item ->
-                startSearchActivity()
-            R.id.my_profile_menu_item ->
-                actionBar.showProfileDialog()
-            R.id.filters_menu_item ->
-                startActivity(Intent(this, FiltersSettingActivity::class.java))
-            else ->
-                    return false
-        }
-        return true
-    }
-
     private fun startSearchActivity() {
-        startActivity(Intent(this, SearchActivity::class.java))
+        startActivity<SearchActivity>()
     }
 
     private fun startLocationUpdates() {

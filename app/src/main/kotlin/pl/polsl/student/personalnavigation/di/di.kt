@@ -10,6 +10,8 @@ import org.osmdroid.bonuspack.routing.RoadManager
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
 import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
+import pl.polsl.student.personalnavigation.view.DefaultOverlayMarkersFactory
+import pl.polsl.student.personalnavigation.view.OverlayMarkersFactory
 import pl.polsl.student.personalnavigation.viewmodel.*
 import java.util.*
 import java.util.concurrent.Executor
@@ -43,6 +45,7 @@ val koinModule = applicationContext {
                         Context.MODE_PRIVATE
                 )
     }
+    provide { DefaultOverlayMarkersFactory(get(), get()) as OverlayMarkersFactory }
     provide { LocationSender(get("serverUrl"), get(), get()) }
     provide { MarkersViewModel(get(), get(), ScalingBoundingBoxTransform(2.0f), get(), get()) }
     provide { UserIdViewModel(get(), get()) }
