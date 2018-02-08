@@ -2,10 +2,8 @@ package pl.polsl.student.personalnavigation.di
 
 import android.content.Context
 import android.content.ContextWrapper
-import org.koin.android.architecture.ext.viewModel
 import org.koin.dsl.module.applicationContext
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager
-import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.RoadManager
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.*
@@ -13,11 +11,9 @@ import pl.polsl.student.personalnavigation.util.ScalingBoundingBoxTransform
 import pl.polsl.student.personalnavigation.view.DefaultOverlayMarkersFactory
 import pl.polsl.student.personalnavigation.view.OverlayMarkersFactory
 import pl.polsl.student.personalnavigation.viewmodel.*
-import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
-
 
 val koinModule = applicationContext {
     provide("serverUrl") { get<Context>().resources.getString(R.string.server_url) }

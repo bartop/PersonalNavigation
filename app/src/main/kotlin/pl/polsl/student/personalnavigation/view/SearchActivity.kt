@@ -11,18 +11,16 @@ import kotterknife.bindView
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.koin.android.architecture.ext.getViewModel
-import org.koin.android.ext.android.inject
 import pl.polsl.student.personalnavigation.R
 import pl.polsl.student.personalnavigation.model.DistanceMarker
-import pl.polsl.student.personalnavigation.model.TrackedMarker
 import pl.polsl.student.personalnavigation.util.observeNotNull
 import pl.polsl.student.personalnavigation.viewmodel.MapViewModel
 import pl.polsl.student.personalnavigation.viewmodel.MarkersViewModel
 import pl.polsl.student.personalnavigation.viewmodel.SearchedMarkersViewModel
 
 class SearchActivity : AppCompatActivity() {
-
     private val recyclerView by bindView<RecyclerView>(R.id.markersRecyclerView)
+
     private val recyclerAdapter by lazy {
         MarkersRecyclerViewAdapter(this::showMarker, this::trackMarker)
     }
@@ -77,7 +75,6 @@ class SearchActivity : AppCompatActivity() {
         mapViewModel.setTrackMyself(false)
         mapViewModel.setCenter(marker.position.toGeoPoint())
         markersViewModel.trackMarkerWithId(marker.id)
-
         this.finish()
     }
 }
